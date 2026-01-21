@@ -45,39 +45,31 @@ button.secondary {
   background: #888;
 }
 
-button.danger {
-  background: #e11d48;
-}
-
 .part {
   background: #3b82f6;
   color: white;
   border-radius: 15px;
   padding: 15px;
   margin: 10px 0;
-  position: relative;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
 }
 
-.part small {
+.part-text {
+  flex: 1;
+}
+
+.part-text small {
   opacity: 0.85;
 }
 
-.star {
-  position: absolute;
-  right: 45px;
-  top: 15px;
-  font-size: 20px;
-  color: gold;
-  cursor: pointer;
-}
-
 .delete-btn {
-  position: absolute;
-  right: 10px;
-  top: 12px;
   font-size: 18px;
-  background: none;
+  background: #e11d48;
   border: none;
+  border-radius: 8px;
+  padding: 8px 10px;
   color: white;
   cursor: pointer;
 }
@@ -96,18 +88,15 @@ button.danger {
 
 <header>
   <h1>Teileliste BMW E61</h1>
-  <p>Suche, filtere oder füge neue Teile hinzu</p>
+  <p>Tippen = Infos • ❌ = Löschen</p>
 </header>
 
 <div class="container">
 
-  <!-- VIN -->
   <input id="vinInput" placeholder="VIN eingeben">
 
-  <!-- Suche -->
   <input id="searchInput" placeholder="Teil suchen..." oninput="renderParts()">
 
-  <!-- Kategorie -->
   <select id="categoryFilter" onchange="renderParts()">
     <option value="">Alle Kategorien</option>
     <option>Motor</option>
@@ -125,7 +114,6 @@ button.danger {
 
   <button class="secondary" onclick="removeDuplicates()">Doppelte Teile entfernen</button>
 
-  <!-- Teil hinzufügen -->
   <h3>Teil hinzufügen</h3>
   <input id="nameInput" placeholder="Teilname">
   <input id="categoryInput" placeholder="Kategorie">
@@ -181,14 +169,11 @@ function saveParts() {
   localStorage.setItem("parts_" + vin, JSON.stringify(parts));
 }
 
-function saveVIN() {
+document.getElementById("vinInput").oninput = () => {
   vin = document.getElementById("vinInput").value.trim();
-  if (!vin) return alert("Bitte VIN eingeben");
   localStorage.setItem("vin", vin);
   loadParts();
-}
-
-document.getElementById("vinInput").oninput = saveVIN;
+};
 
 function addPart() {
   const name = nameInput.value.trim();
@@ -196,21 +181,14 @@ function addPart() {
   const oem = oemInput.value.trim();
   const desc = descInput.value.trim();
 
-  if (!name || !category) {
-    alert("Name und Kategorie sind Pflicht!");
-    return;
-  }
+  if (!name || !category) return alert("Name und Kategorie sind Pflicht!");
 
-  // Duplikate verhindern
   const exists = parts.some(p =>
     p.name.toLowerCase() === name.toLowerCase() &&
     p.category.toLowerCase() === category.toLowerCase()
   );
 
-  if (exists) {
-    alert("Dieses Teil existiert bereits!");
-    return;
-  }
+  if (exists) return alert("Dieses Teil existiert bereits!");
 
   parts.push({name, category, oem, desc});
   saveParts();
@@ -223,8 +201,7 @@ function addPart() {
   renderParts();
 }
 
-function deletePart(index, event) {
-  event.stopPropagation(); // wichtig für iOS/Safari
+function deletePart(index) {
   if (!confirm("Teil wirklich löschen?")) return;
   parts.splice(index, 1);
   saveParts();
@@ -260,21 +237,21 @@ function renderParts() {
 
     const div = document.createElement("div");
     div.className = "part";
-    div.innerHTML = `
-      <strong>${p.name}</strong><br>
-      <small>${p.category}</small>
-      <button class="delete-btn" onclick="deletePart(${i}, event)">❌</button>
-    `;
 
-    div.onclick = () => {
-      showInfo(p);
-    };
+    div.innerHTML = `
+      <div class="part-text" onclick="showInfo(${i})">
+        <strong>${p.name}</strong><br>
+        <small>${p.category}</small>
+      </div>
+      <button class="delete-btn" onclick="deletePart(${i})">❌</button>
+    `;
 
     partsList.appendChild(div);
   });
 }
 
-function showInfo(p) {
+function showInfo(i) {
+  const p = parts[i];
   infoPanel.style.display = "block";
   infoPanel.innerHTML = `
     <strong>Name:</strong> ${p.name}<br>
