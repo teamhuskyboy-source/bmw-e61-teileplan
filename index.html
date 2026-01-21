@@ -1,95 +1,94 @@
 <!DOCTYPE html>
 <html lang="de">
 <head>
-  <meta charset="UTF-8">
-  <title>BMW E61 Teileliste</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>BMW Teileliste</title>
 
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      background: #111;
-      color: #fff;
-      margin: 0;
-      padding: 20px;
-    }
+<style>
+body {
+  font-family: Arial, sans-serif;
+  background: #f2f2f2;
+  margin: 0;
+  padding: 15px;
+}
 
-    h1 {
-      text-align: center;
-    }
+h1 { text-align: center; }
 
-    input, select, button, textarea {
-      width: 100%;
-      padding: 12px;
-      border-radius: 10px;
-      border: none;
-      margin-bottom: 10px;
-      font-size: 16px;
-    }
+input, select, button, textarea {
+  width: 100%;
+  padding: 10px;
+  margin: 5px 0;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+  font-size: 16px;
+}
 
-    button {
-      background: #3b82f6;
-      color: white;
-      font-weight: bold;
-    }
+button {
+  background: #3b82f6;
+  color: white;
+  border: none;
+}
 
-    .part {
-      background: #3b82f6;
-      border-radius: 18px;
-      padding: 16px;
-      margin-bottom: 12px;
-      position: relative;
-    }
+.vehicle-bar {
+  background: #111;
+  color: white;
+  padding: 10px;
+  border-radius: 10px;
+}
 
-    .part h3 {
-      margin: 0;
-      font-size: 20px;
-    }
+.part-row {
+  display: flex;
+  align-items: center;
+  margin: 10px 0;
+}
 
-    .part p {
-      margin: 4px 0 0 0;
-      opacity: 0.85;
-    }
+.part-card {
+  flex: 1;
+  background: #3b82f6;
+  color: white;
+  padding: 15px;
+  border-radius: 15px;
+}
 
-    .delete-btn {
-      position: absolute;
-      right: 12px;
-      top: 50%;
-      transform: translateY(-50%);
-      background: #dc2626;
-      color: white;
-      border: none;
-      border-radius: 10px;
-      width: 44px;
-      height: 44px;
-      font-size: 20px;
-    }
+.delete-btn {
+  margin-left: 10px;
+  background: #e11d48;
+  border: none;
+  color: white;
+  border-radius: 10px;
+  width: 50px;
+  height: 50px;
+  font-size: 22px;
+}
 
-    .info-box {
-      background: #fff;
-      color: #000;
-      border-left: 6px solid #3b82f6;
-      border-radius: 10px;
-      padding: 12px;
-      margin-top: 10px;
-    }
-  </style>
+.panel {
+  background: white;
+  border-left: 5px solid #3b82f6;
+  padding: 10px;
+  margin: 5px 0 15px 0;
+  border-radius: 8px;
+}
+</style>
 </head>
 
 <body>
 
-<h1>Teileliste</h1>
+<h1>BMW Teileliste</h1>
 
-<input id="vinInput" placeholder="FIN eingeben (z.B. WBAPY51000CX14466)">
+<div class="vehicle-bar">
+  <select id="vehicleSelect"></select>
+  <input id="vinInput" placeholder="FIN eingeben">
+  <input id="vehicleNameInput" placeholder="Anzeigename (z. B. E61 Daily)">
+  <button onclick="addVehicle()">Fahrzeug hinzufügen</button>
+</div>
 
 <input id="searchInput" placeholder="Teil suchen...">
-
 <select id="categoryFilter">
   <option value="">Alle Kategorien</option>
 </select>
 
-<h2>Teil hinzufügen</h2>
-
+<h3>Teil hinzufügen</h3>
 <input id="nameInput" placeholder="Teilname">
 <input id="categoryInput" placeholder="Kategorie">
 <input id="oemInput" placeholder="OEM Nummer">
@@ -99,152 +98,191 @@
 <div id="partsList"></div>
 
 <script>
-let data = JSON.parse(localStorage.getItem("bmw_data")) || {};
+const REPO_OWNER = "DEIN_GITHUB_NAME";
+const REPO_NAME = "DEIN_REPO_NAME";
+const FILE_PATH = "data.json";
+
+let githubToken = localStorage.getItem("github_token") || "";
+let cloudData = { vehicles: {} };
 let currentVin = "";
 
-const vinInput = document.getElementById("vinInput");
-const searchInput = document.getElementById("searchInput");
-const categoryFilter = document.getElementById("categoryFilter");
-const partsList = document.getElementById("partsList");
+const vehicleSelect = document.getElementById("vehicleSelect");
 
-vinInput.addEventListener("change", () => {
-  currentVin = vinInput.value.trim();
-  loadVin();
-});
-
-searchInput.addEventListener("input", renderParts);
-categoryFilter.addEventListener("change", renderParts);
-
-function loadVin() {
-  if (!currentVin) return;
-
-  if (!data[currentVin]) {
-    data[currentVin] = [];
+async function loadCloud() {
+  if (!githubToken) {
+    githubToken = prompt("GitHub Token eingeben:");
+    localStorage.setItem("github_token", githubToken);
   }
 
-  localStorage.setItem("bmw_vin", currentVin);
-  localStorage.setItem("bmw_data", JSON.stringify(data));
+  const res = await fetch(`https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/contents/${FILE_PATH}`, {
+    headers: { Authorization: `token ${githubToken}` }
+  });
 
+  const data = await res.json();
+  cloudData = JSON.parse(atob(data.content));
+  localStorage.setItem("cloud_sha", data.sha);
+
+  renderVehicles();
+}
+
+async function saveCloud() {
+  const sha = localStorage.getItem("cloud_sha");
+
+  await fetch(`https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/contents/${FILE_PATH}`, {
+    method: "PUT",
+    headers: {
+      Authorization: `token ${githubToken}`,
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({
+      message: "Update BMW data",
+      content: btoa(JSON.stringify(cloudData, null, 2)),
+      sha
+    })
+  });
+
+  loadCloud();
+}
+
+function renderVehicles() {
+  vehicleSelect.innerHTML = "";
+
+  Object.entries(cloudData.vehicles).forEach(([vin, v]) => {
+    const opt = document.createElement("option");
+    opt.value = vin;
+    opt.textContent = `${v.name} – ${vin}`;
+    vehicleSelect.appendChild(opt);
+  });
+
+  if (!currentVin && vehicleSelect.options.length) {
+    currentVin = vehicleSelect.options[0].value;
+  }
+
+  vehicleSelect.value = currentVin;
   renderParts();
-  updateCategoryFilter();
+  updateCategories();
+}
+
+vehicleSelect.onchange = () => {
+  currentVin = vehicleSelect.value;
+  renderParts();
+  updateCategories();
+};
+
+function addVehicle() {
+  const vin = vinInput.value.trim();
+  const name = vehicleNameInput.value.trim();
+
+  if (!vin || !name) return alert("FIN und Anzeigename eingeben.");
+
+  if (cloudData.vehicles[vin]) return alert("Dieses Fahrzeug existiert bereits.");
+
+  cloudData.vehicles[vin] = { name, parts: [] };
+  currentVin = vin;
+
+  vinInput.value = "";
+  vehicleNameInput.value = "";
+
+  saveCloud();
 }
 
 function addPart() {
-  if (!currentVin) {
-    alert("Bitte zuerst eine FIN eingeben.");
-    return;
-  }
+  if (!currentVin) return alert("Kein Fahrzeug gewählt.");
 
   const name = nameInput.value.trim();
   const category = categoryInput.value.trim();
   const oem = oemInput.value.trim();
   const desc = descInput.value.trim();
 
-  if (!name || !category) {
-    alert("Teilname und Kategorie sind Pflicht.");
-    return;
-  }
+  if (!name || !category) return alert("Name und Kategorie Pflicht.");
 
-  const parts = data[currentVin];
+  const parts = cloudData.vehicles[currentVin].parts;
 
-  if (parts.some(p => p.name.toLowerCase() === name.toLowerCase())) {
-    alert("Dieses Teil existiert bereits.");
-    return;
-  }
+  if (parts.some(p => p.name.toLowerCase() === name.toLowerCase()))
+    return alert("Teil existiert bereits.");
 
   parts.push({ name, category, oem, desc });
-  saveData();
 
   nameInput.value = "";
   categoryInput.value = "";
   oemInput.value = "";
   descInput.value = "";
 
-  renderParts();
-  updateCategoryFilter();
+  saveCloud();
 }
 
-function deletePart(index) {
-  data[currentVin].splice(index, 1);
-  saveData();
-  renderParts();
+function deletePart(i) {
+  cloudData.vehicles[currentVin].parts.splice(i, 1);
+  saveCloud();
 }
 
 function renderParts() {
-  if (!currentVin) return;
-
-  const parts = data[currentVin];
+  const partsList = document.getElementById("partsList");
   const search = searchInput.value.toLowerCase();
   const category = categoryFilter.value;
 
   partsList.innerHTML = "";
 
-  parts.forEach((part, index) => {
+  if (!currentVin) return;
+
+  cloudData.vehicles[currentVin].parts.forEach((p, i) => {
     if (
-      part.name.toLowerCase().includes(search) &&
-      (category === "" || part.category === category)
-    ) {
-      const div = document.createElement("div");
-      div.className = "part";
+      (search && !p.name.toLowerCase().includes(search)) ||
+      (category && p.category !== category)
+    ) return;
 
-      div.innerHTML = `
-        <h3>${part.name}</h3>
-        <p>${part.category}</p>
-        <button class="delete-btn" onclick="deletePart(${index})">✖</button>
-      `;
+    const row = document.createElement("div");
+    row.className = "part-row";
 
-      div.addEventListener("click", (e) => {
-        if (e.target.classList.contains("delete-btn")) return;
+    row.innerHTML = `
+      <div class="part-card" onclick="toggleInfo(${i}, this)">
+        <strong>${p.name}</strong><br>
+        <small>${p.category}</small>
+      </div>
+      <button class="delete-btn" onclick="deletePart(${i})">❌</button>
+    `;
 
-        const existing = div.querySelector(".info-box");
-        if (existing) {
-          existing.remove();
-        } else {
-          const info = document.createElement("div");
-          info.className = "info-box";
-          info.innerHTML = `
-            <strong>Name:</strong> ${part.name}<br>
-            <strong>Kategorie:</strong> ${part.category}<br>
-            <strong>OEM:</strong> ${part.oem || "-"}<br>
-            <strong>Beschreibung:</strong> ${part.desc || "-"}
-          `;
-          div.appendChild(info);
-        }
-      });
-
-      partsList.appendChild(div);
-    }
+    partsList.appendChild(row);
   });
 }
 
-function updateCategoryFilter() {
-  if (!currentVin) return;
+function toggleInfo(i, card) {
+  document.querySelectorAll(".panel").forEach(p => p.remove());
 
-  const parts = data[currentVin];
-  const categories = [...new Set(parts.map(p => p.category))];
+  const p = cloudData.vehicles[currentVin].parts[i];
 
+  const panel = document.createElement("div");
+  panel.className = "panel";
+  panel.innerHTML = `
+    <strong>Name:</strong> ${p.name}<br>
+    <strong>Kategorie:</strong> ${p.category}<br>
+    <strong>OEM:</strong> ${p.oem || "-"}<br>
+    <strong>Beschreibung:</strong> ${p.desc || "-"}
+  `;
+
+  card.parentNode.insertAdjacentElement("afterend", panel);
+}
+
+function updateCategories() {
   categoryFilter.innerHTML = `<option value="">Alle Kategorien</option>`;
 
-  categories.forEach(cat => {
+  if (!currentVin) return;
+
+  const parts = cloudData.vehicles[currentVin].parts;
+  const cats = [...new Set(parts.map(p => p.category))];
+
+  cats.forEach(c => {
     const opt = document.createElement("option");
-    opt.value = cat;
-    opt.textContent = cat;
+    opt.value = c;
+    opt.textContent = c;
     categoryFilter.appendChild(opt);
   });
 }
 
-function saveData() {
-  localStorage.setItem("bmw_data", JSON.stringify(data));
-}
+searchInput.oninput = renderParts;
+categoryFilter.onchange = renderParts;
 
-(function init() {
-  const savedVin = localStorage.getItem("bmw_vin");
-  if (savedVin) {
-    vinInput.value = savedVin;
-    currentVin = savedVin;
-    loadVin();
-  }
-})();
+loadCloud();
 </script>
 
 </body>
