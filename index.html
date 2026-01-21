@@ -66,7 +66,7 @@ button.danger {
   position: absolute;
   right: 45px;
   top: 15px;
-  font-size: 22px;
+  font-size: 20px;
   color: gold;
   cursor: pointer;
 }
@@ -101,9 +101,13 @@ button.danger {
 
 <div class="container">
 
+  <!-- VIN -->
   <input id="vinInput" placeholder="VIN eingeben">
+
+  <!-- Suche -->
   <input id="searchInput" placeholder="Teil suchen..." oninput="renderParts()">
 
+  <!-- Kategorie -->
   <select id="categoryFilter" onchange="renderParts()">
     <option value="">Alle Kategorien</option>
     <option>Motor</option>
@@ -121,6 +125,7 @@ button.danger {
 
   <button class="secondary" onclick="removeDuplicates()">Doppelte Teile entfernen</button>
 
+  <!-- Teil hinzufügen -->
   <h3>Teil hinzufügen</h3>
   <input id="nameInput" placeholder="Teilname">
   <input id="categoryInput" placeholder="Kategorie">
@@ -134,11 +139,56 @@ button.danger {
 </div>
 
 <script>
-let parts = [
-  {name:"Zylinderkopf", category:"Motor", oem:"11127806100", desc:"M57 Diesel Zylinderkopf"},
-  {name:"Turbolader", category:"Motor", oem:"11657802588", desc:"Abgasturbolader"},
-  {name:"Injektor", category:"Kraftstoff", oem:"13537805430", desc:"Common-Rail Injektor"}
+let vin = localStorage.getItem("vin") || "";
+document.getElementById("vinInput").value = vin;
+
+let defaultParts = [
+  {name:"Zylinderkopf", category:"Motor", oem:"", desc:"M57 Diesel Zylinderkopf"},
+  {name:"Turbolader", category:"Motor", oem:"", desc:"Abgasturbolader"},
+  {name:"Injektor", category:"Kraftstoff", oem:"", desc:"Common-Rail Injektor"},
+  {name:"Hochdruckpumpe", category:"Kraftstoff", oem:"", desc:"Hochdruckpumpe"},
+  {name:"Wasserpumpe", category:"Kühlsystem", oem:"", desc:"Kühlmittelpumpe"},
+  {name:"Thermostat", category:"Kühlsystem", oem:"", desc:"Motorthermostat"},
+  {name:"Getriebe", category:"Getriebe", oem:"", desc:"Automatikgetriebe"},
+  {name:"Kardanwelle", category:"Getriebe", oem:"", desc:"xDrive Kardanwelle"},
+  {name:"Differenzial", category:"Getriebe", oem:"", desc:"Hinterachsdifferenzial"},
+  {name:"Bremsscheibe VA", category:"Bremsen", oem:"", desc:"Belüftete Bremsscheibe vorne"},
+  {name:"Bremssattel", category:"Bremsen", oem:"", desc:"Vorderer Bremssattel"},
+  {name:"ABS Steuergerät", category:"Steuergeräte", oem:"", desc:"ABS/DSC Modul"},
+  {name:"Motorsteuergerät", category:"Steuergeräte", oem:"", desc:"DDE Steuergerät"},
+  {name:"Scheinwerfer", category:"Beleuchtung", oem:"", desc:"Frontscheinwerfer"},
+  {name:"Rücklicht", category:"Beleuchtung", oem:"", desc:"Rückleuchte"},
+  {name:"Batterie", category:"Elektrik", oem:"", desc:"Starterbatterie"},
+  {name:"Kotflügel", category:"Karosserie außen", oem:"", desc:"Vorderer Kotflügel"},
+  {name:"Motorhaube", category:"Karosserie außen", oem:"", desc:"Haube"},
+  {name:"Tür vorne links", category:"Karosserie außen", oem:"", desc:"Fahrertür"},
+  {name:"Heckklappe", category:"Karosserie außen", oem:"", desc:"Kofferraumklappe"},
+  {name:"Sitz", category:"Innenraum", oem:"", desc:"Vordersitz"},
+  {name:"Lenkrad", category:"Innenraum", oem:"", desc:"Multifunktionslenkrad"}
 ];
+
+let parts = [];
+
+function loadParts() {
+  let key = "parts_" + vin;
+  let saved = localStorage.getItem(key);
+  parts = saved ? JSON.parse(saved) : JSON.parse(JSON.stringify(defaultParts));
+  renderParts();
+}
+
+function saveParts() {
+  if (!vin) return;
+  localStorage.setItem("parts_" + vin, JSON.stringify(parts));
+}
+
+function saveVIN() {
+  vin = document.getElementById("vinInput").value.trim();
+  if (!vin) return alert("Bitte VIN eingeben");
+  localStorage.setItem("vin", vin);
+  loadParts();
+}
+
+document.getElementById("vinInput").oninput = saveVIN;
 
 function addPart() {
   const name = nameInput.value.trim();
@@ -151,7 +201,7 @@ function addPart() {
     return;
   }
 
-  // 🔒 Duplikate verhindern (Name + Kategorie)
+  // Duplikate verhindern
   const exists = parts.some(p =>
     p.name.toLowerCase() === name.toLowerCase() &&
     p.category.toLowerCase() === category.toLowerCase()
@@ -163,6 +213,8 @@ function addPart() {
   }
 
   parts.push({name, category, oem, desc});
+  saveParts();
+
   nameInput.value = "";
   categoryInput.value = "";
   oemInput.value = "";
@@ -171,9 +223,11 @@ function addPart() {
   renderParts();
 }
 
-function deletePart(index) {
+function deletePart(index, event) {
+  event.stopPropagation(); // wichtig für iOS/Safari
   if (!confirm("Teil wirklich löschen?")) return;
   parts.splice(index, 1);
+  saveParts();
   renderParts();
   infoPanel.style.display = "none";
 }
@@ -187,6 +241,7 @@ function removeDuplicates() {
     return true;
   });
 
+  saveParts();
   renderParts();
   alert("Doppelte Teile wurden entfernt.");
 }
@@ -207,14 +262,11 @@ function renderParts() {
     div.className = "part";
     div.innerHTML = `
       <strong>${p.name}</strong><br>
-      <small>${p.category}</small><br>
-      <small>Status: undefined</small>
-      <span class="star">☆</span>
-      <button class="delete-btn" onclick="deletePart(${i})">❌</button>
+      <small>${p.category}</small>
+      <button class="delete-btn" onclick="deletePart(${i}, event)">❌</button>
     `;
 
-    div.onclick = (e) => {
-      if (e.target.classList.contains("delete-btn")) return;
+    div.onclick = () => {
       showInfo(p);
     };
 
@@ -232,7 +284,7 @@ function showInfo(p) {
   `;
 }
 
-renderParts();
+if (vin) loadParts();
 </script>
 
 </body>
