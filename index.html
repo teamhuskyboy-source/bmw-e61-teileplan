@@ -1,87 +1,96 @@
 <!DOCTYPE html>
 <html lang="de">
 <head>
-  <meta charset="UTF-8">
-  <title>BMW E61 525xd Teileliste</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta charset="UTF-8">
+<title>BMW E61 525xd – Teileliste</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<style>
+body {
+  font-family: Arial, sans-serif;
+  margin: 0;
+  background: #f4f4f4;
+}
 
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      margin: 0;
-      background: #f4f4f4;
-    }
+header {
+  background: #111;
+  color: #fff;
+  padding: 20px;
+  text-align: center;
+}
 
-    header {
-      background: #111;
-      color: #fff;
-      padding: 20px;
-      text-align: center;
-    }
+#controls {
+  padding: 10px;
+  background: #fff;
+}
 
-    #controls {
-      padding: 15px;
-      background: #fff;
-    }
+input, select, button {
+  width: 100%;
+  padding: 10px;
+  margin: 5px 0;
+  font-size: 16px;
+}
 
-    input, select {
-      width: 100%;
-      padding: 10px;
-      margin-bottom: 10px;
-      font-size: 16px;
-    }
+button {
+  background: #3b82f6;
+  color: white;
+  border: none;
+  border-radius: 6px;
+}
 
-    #list {
-      padding: 15px;
-    }
+button.star {
+  background: #facc15;
+  color: black;
+}
 
-    button {
-      width: 100%;
-      padding: 12px;
-      margin-bottom: 10px;
-      font-size: 16px;
-      border: none;
-      border-radius: 6px;
-      background: #3b82f6;
-      color: #fff;
-      cursor: pointer;
-      text-align: left;
-    }
+#list {
+  padding: 10px;
+}
 
-    button:hover {
-      background: #2563eb;
-    }
+.item {
+  background: #3b82f6;
+  color: #fff;
+  padding: 12px;
+  border-radius: 8px;
+  margin-bottom: 10px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
 
-    #panel {
-      background: #fff;
-      margin: 15px;
-      padding: 15px;
-      border-left: 4px solid #3b82f6;
-    }
-  </style>
+.item span {
+  font-size: 16px;
+}
+
+#panel {
+  background: #fff;
+  margin: 10px;
+  padding: 10px;
+  border-left: 4px solid #3b82f6;
+}
+
+#addForm {
+  background: #fff;
+  margin: 10px;
+  padding: 10px;
+  border-left: 4px solid #22c55e;
+}
+</style>
 </head>
-
 <body>
 
 <header>
-  <h1>BMW E61 525xd Teileliste</h1>
+  <h1>BMW E61 525xd – Teileliste</h1>
   <p>Tippe auf ein Teil</p>
 </header>
 
 <div id="controls">
-  <input id="search" placeholder="Suche nach Name, OEM, Gruppe..." oninput="render()">
+  <input id="search" placeholder="Suche nach Name, OEM oder Gruppe" oninput="renderList()">
 
-  <select id="groupFilter" onchange="render()">
+  <select id="groupFilter" onchange="renderList()">
     <option value="">Alle Gruppen</option>
-    <option value="Motor">Motor</option>
-    <option value="Turbo">Turbo</option>
-    <option value="Kühlsystem">Kühlsystem</option>
-    <option value="Bremsen">Bremsen</option>
-    <option value="Kraftstoff">Kraftstoff</option>
-    <option value="Antrieb">Antrieb</option>
-    <option value="Karosserie">Karosserie</option>
-    <option value="Elektrik">Elektrik</option>
   </select>
+
+  <button onclick="showFavorites()">⭐ Favoriten anzeigen</button>
 </div>
 
 <div id="list"></div>
@@ -90,50 +99,126 @@
   Tippe auf ein Teil
 </div>
 
+<div id="addForm">
+  <h3>➕ Neues Teil hinzufügen</h3>
+  <input id="newName" placeholder="Name">
+  <input id="newOEM" placeholder="OEM">
+  <input id="newGroup" placeholder="Gruppe">
+  <input id="newDesc" placeholder="Beschreibung">
+  <button onclick="addPart()">Hinzufügen</button>
+</div>
+
 <script>
-const parts = [
-  { n: "Zylinderkopf", o: "11127806100", g: "Motor", d: "M57 Diesel Zylinderkopf" },
-  { n: "Turbolader", o: "11657802588", g: "Turbo", d: "Abgasturbolader" },
-  { n: "Wasserpumpe", o: "11517788826", g: "Kühlsystem", d: "Kühlmittelpumpe" },
-  { n: "Bremsscheibe VA", o: "34116864058", g: "Bremsen", d: "Belüftete Bremsscheibe vorne" },
-  { n: "Injektor", o: "13537805430", g: "Kraftstoff", d: "Common-Rail Injektor" },
-  { n: "Kardanwelle", o: "26107570956", g: "Antrieb", d: "xDrive Kardanwelle" },
-  { n: "Rücklicht", o: "63217160793", g: "Karosserie", d: "Rückleuchte rechts" },
-  { n: "Batterie", o: "61217586967", g: "Elektrik", d: "Starterbatterie" }
+let parts = [
+  {name:"Zylinderkopf", oem:"11127806100", group:"Motor", desc:"M57 Diesel Zylinderkopf"},
+  {name:"Turbolader", oem:"11657802588", group:"Turbo", desc:"Abgasturbolader"},
+  {name:"Wasserpumpe", oem:"11517788826", group:"Kühlsystem", desc:"Kühlmittelpumpe"},
+  {name:"Bremsscheibe VA", oem:"34116864058", group:"Bremsen", desc:"Belüftete Bremsscheibe vorne"},
+  {name:"Injektor", oem:"13537805430", group:"Kraftstoff", desc:"Common-Rail Injektor"},
+  {name:"Kardanwelle", oem:"26107570956", group:"Antrieb", desc:"xDrive Kardanwelle"},
+  {name:"Rücklicht", oem:"63217160793", group:"Karosserie", desc:"Rückleuchte rechts"},
+  {name:"Batterie", oem:"61217586967", group:"Elektrik", desc:"Starterbatterie"}
 ];
 
-function render() {
-  const q = document.getElementById("search").value.toLowerCase();
-  const g = document.getElementById("groupFilter").value;
+let favorites = [];
 
-  const list = document.getElementById("list");
-  list.innerHTML = "";
+function save() {
+  localStorage.setItem("parts", JSON.stringify(parts));
+  localStorage.setItem("favorites", JSON.stringify(favorites));
+}
 
-  parts
-    .filter(p =>
-      (!q ||
-        p.n.toLowerCase().includes(q) ||
-        p.o.includes(q) ||
-        p.g.toLowerCase().includes(q)) &&
-      (!g || p.g === g)
-    )
-    .forEach(p => {
-      const btn = document.createElement("button");
-      btn.textContent = p.n + " (" + p.o + ")";
-      btn.onclick = () => show(p);
-      list.appendChild(btn);
-    });
+function load() {
+  let p = localStorage.getItem("parts");
+  let f = localStorage.getItem("favorites");
+  if (p) parts = JSON.parse(p);
+  if (f) favorites = JSON.parse(f);
+}
+
+function renderGroups() {
+  let groups = [...new Set(parts.map(p => p.group))];
+  let sel = document.getElementById("groupFilter");
+  sel.innerHTML = '<option value="">Alle Gruppen</option>';
+  groups.forEach(g => {
+    let opt = document.createElement("option");
+    opt.value = g;
+    opt.textContent = g;
+    sel.appendChild(opt);
+  });
+}
+
+function renderList(list = parts) {
+  let search = document.getElementById("search").value.toLowerCase();
+  let group = document.getElementById("groupFilter").value;
+
+  let filtered = list.filter(p =>
+    (!search || p.name.toLowerCase().includes(search) || p.oem.includes(search) || p.group.toLowerCase().includes(search)) &&
+    (!group || p.group === group)
+  );
+
+  let container = document.getElementById("list");
+  container.innerHTML = "";
+
+  filtered.forEach(p => {
+    let div = document.createElement("div");
+    div.className = "item";
+
+    let span = document.createElement("span");
+    span.textContent = p.name;
+    span.onclick = () => show(p);
+
+    let star = document.createElement("button");
+    star.className = "star";
+    star.textContent = favorites.includes(p.oem) ? "★" : "☆";
+    star.onclick = () => toggleFavorite(p.oem);
+
+    div.appendChild(span);
+    div.appendChild(star);
+    container.appendChild(div);
+  });
 }
 
 function show(p) {
   document.getElementById("panel").innerHTML =
-    "<strong>Name:</strong> " + p.n + "<br>" +
-    "<strong>OEM:</strong> " + p.o + "<br>" +
-    "<strong>Gruppe:</strong> " + p.g + "<br>" +
-    "<strong>Beschreibung:</strong> " + p.d;
+    "<strong>Name:</strong> " + p.name + "<br>" +
+    "<strong>OEM:</strong> " + p.oem + "<br>" +
+    "<strong>Gruppe:</strong> " + p.group + "<br>" +
+    "<strong>Beschreibung:</strong> " + p.desc;
 }
 
-render();
+function addPart() {
+  let name = newName.value;
+  let oem = newOEM.value;
+  let group = newGroup.value;
+  let desc = newDesc.value;
+
+  if (!name || !oem) return alert("Name und OEM sind Pflicht");
+
+  parts.push({name, oem, group, desc});
+  save();
+  renderGroups();
+  renderList();
+
+  newName.value = newOEM.value = newGroup.value = newDesc.value = "";
+}
+
+function toggleFavorite(oem) {
+  if (favorites.includes(oem)) {
+    favorites = favorites.filter(f => f !== oem);
+  } else {
+    favorites.push(oem);
+  }
+  save();
+  renderList();
+}
+
+function showFavorites() {
+  let favParts = parts.filter(p => favorites.includes(p.oem));
+  renderList(favParts);
+}
+
+load();
+renderGroups();
+renderList();
 </script>
 
 </body>
