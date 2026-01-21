@@ -10,10 +10,10 @@
           "desc": "Zylinderkopf bmw e61 530d 235ps"
         },
         {
-          "name": "Ölwanne",
+          "name": "Oilwanne",
           "category": "Motor",
           "oem": "5481FB0027815",
-          "desc": "Ölwanne für bmw e61 525xd 3.0 M57"
+          "desc": "Oilwanne fur bmw e61 525xd 3.0"
         }
       ]
     },
@@ -21,10 +21,10 @@
       "name": "BMW E61 530d 218ps Silver",
       "parts": [
         {
-          "name": "Gl�hkerze",
+          "name": "Glühkerze",
           "category": "Motor",
           "oem": "243G0002",
-          "desc": "Gl�hkerze f�r bmw e61 M57 530d 218ps"
+          "desc": "Glühkerze für bmw e61 M57 530d 218ps"
         }
       ]
     }
