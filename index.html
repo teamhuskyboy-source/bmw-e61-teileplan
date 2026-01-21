@@ -1,265 +1,216 @@
 <!DOCTYPE html>
 <html lang="de">
 <head>
-<meta charset="UTF-8">
-<title>BMW E61 525xd – Teileliste</title>
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<style>
-body {
-  font-family: Arial, sans-serif;
-  margin: 0;
-  background: #f4f4f4;
-  color: #000;
-}
+  <meta charset="UTF-8">
+  <title>BMW E61 525xd Teileliste</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-.dark body {
-  background: #111;
-  color: #eee;
-}
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      background: #f4f4f4;
+    }
 
-header {
-  background: #111;
-  color: #fff;
-  padding: 20px;
-  text-align: center;
-}
+    header {
+      background: #111;
+      color: white;
+      padding: 20px;
+      text-align: center;
+    }
 
-.dark header {
-  background: #000;
-}
+    .controls {
+      padding: 10px;
+      text-align: center;
+      background: #eee;
+    }
 
-#controls, #panel, #addForm {
-  background: #fff;
-  margin: 10px;
-  padding: 10px;
-  border-radius: 10px;
-}
+    .controls button {
+      margin: 5px;
+      padding: 10px 15px;
+      border: none;
+      border-radius: 6px;
+      background: #3b82f6;
+      color: white;
+      font-size: 14px;
+    }
 
-.dark #controls, 
-.dark #panel, 
-.dark #addForm {
-  background: #1f1f1f;
-}
+    .list {
+      padding: 10px;
+    }
 
-input, select, textarea, button {
-  width: 100%;
-  padding: 10px;
-  margin: 6px 0;
-  font-size: 16px;
-  border-radius: 6px;
-  border: 1px solid #ccc;
-}
+    .item {
+      background: #3b82f6;
+      color: white;
+      padding: 12px;
+      border-radius: 10px;
+      margin-bottom: 10px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
 
-button {
-  background: #3b82f6;
-  color: white;
-  border: none;
-}
+    .item.ok {
+      background: #16a34a;
+    }
 
-button.star {
-  background: #facc15;
-  color: black;
-}
+    .item.defekt {
+      background: #dc2626;
+    }
 
-button.ok { background:#22c55e; }
-button.bad { background:#ef4444; }
-button.warn { background:#f59e0b; }
+    .item .name {
+      font-size: 16px;
+      font-weight: bold;
+    }
 
-.item {
-  background: #3b82f6;
-  color: #fff;
-  padding: 12px;
-  border-radius: 10px;
-  margin: 10px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
+    .item .meta {
+      font-size: 13px;
+      opacity: 0.9;
+    }
 
-.item span {
-  font-size: 16px;
-}
+    .buttons {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
 
-.status {
-  font-size: 12px;
-  opacity: 0.9;
-}
-</style>
+    button.star {
+      background: #facc15;
+      color: black;
+      border: none;
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      font-size: 20px;
+      flex-shrink: 0;
+    }
+
+    button.status {
+      background: rgba(255,255,255,0.2);
+      color: white;
+      border: 1px solid white;
+      border-radius: 6px;
+      padding: 6px 10px;
+      font-size: 12px;
+    }
+
+    #panel {
+      background: white;
+      margin: 10px;
+      padding: 10px;
+      border-left: 4px solid #3b82f6;
+      border-radius: 8px;
+    }
+  </style>
 </head>
-<body id="app">
+
+<body>
 
 <header>
-  <h1>BMW E61 525xd – Teileliste</h1>
+  <h1>Teileliste</h1>
   <p>Tippe auf ein Teil</p>
 </header>
 
-<div id="controls">
-  <input id="search" placeholder="Suche nach Name, OEM oder Gruppe" oninput="renderList()">
-
-  <select id="groupFilter" onchange="renderList()">
-    <option value="">Alle Gruppen</option>
-  </select>
-
-  <button onclick="showFavorites()">⭐ Favoriten</button>
-  <button onclick="toggleDark()">🌙 Dark Mode</button>
+<div class="controls">
+  <button onclick="setSort('name')">Sortieren nach Name</button>
+  <button onclick="setSort('gruppe')">Sortieren nach Gruppe</button>
+  <button onclick="setSort('status')">Sortieren nach Status</button>
 </div>
 
-<div id="list"></div>
+<div class="list" id="list"></div>
 
 <div id="panel">
   Tippe auf ein Teil
 </div>
 
-<div id="addForm">
-  <h3>➕ Neues Teil</h3>
-  <input id="newName" placeholder="Name">
-  <input id="newOEM" placeholder="OEM">
-  <input id="newGroup" placeholder="Gruppe">
-  <input id="newDesc" placeholder="Beschreibung">
-  <button onclick="addPart()">Hinzufügen</button>
-</div>
-
 <script>
-let parts = [
-  {name:"Zylinderkopf", oem:"11127806100", group:"Motor", desc:"M57 Diesel Zylinderkopf", status:"OK", note:""},
-  {name:"Turbolader", oem:"11657802588", group:"Turbo", desc:"Abgasturbolader", status:"OK", note:""},
-  {name:"Wasserpumpe", oem:"11517788826", group:"Kühlsystem", desc:"Kühlmittelpumpe", status:"OK", note:""},
-  {name:"Bremsscheibe VA", oem:"34116864058", group:"Bremsen", desc:"Belüftete Bremsscheibe vorne", status:"OK", note:""},
-  {name:"Injektor", oem:"13537805430", group:"Kraftstoff", desc:"Common-Rail Injektor", status:"OK", note:""},
-  {name:"Kardanwelle", oem:"26107570956", group:"Antrieb", desc:"xDrive Kardanwelle", status:"OK", note:""},
-  {name:"Rücklicht", oem:"63217160793", group:"Karosserie", desc:"Rückleuchte rechts", status:"OK", note:""},
-  {name:"Batterie", oem:"61217586967", group:"Elektrik", desc:"Starterbatterie", status:"OK", note:""}
-];
+  let sortMode = "name";
 
-let favorites = [];
+  const teile = [
+    { name: "Zylinderkopf", oem: "11127806100", gruppe: "Motor", beschreibung: "M57 Diesel Zylinderkopf", status: "ok", fav: false },
+    { name: "Turbolader", oem: "11657802588", gruppe: "Turbo", beschreibung: "Abgasturbolader", status: "ok", fav: false },
+    { name: "Wasserpumpe", oem: "11517788826", gruppe: "Kühlsystem", beschreibung: "Kühlmittelpumpe", status: "ok", fav: false },
+    { name: "Bremsscheibe VA", oem: "34116864058", gruppe: "Bremsen", beschreibung: "Belüftete Bremsscheibe vorne", status: "ok", fav: false },
+    { name: "Injektor", oem: "13537805430", gruppe: "Kraftstoff", beschreibung: "Common-Rail Injektor", status: "ok", fav: false },
+    { name: "Kardanwelle", oem: "26107570956", gruppe: "Antrieb", beschreibung: "xDrive Kardanwelle", status: "ok", fav: false },
+    { name: "Rücklicht", oem: "63217160793", gruppe: "Karosserie", beschreibung: "Rückleuchte rechts", status: "ok", fav: false },
+    { name: "Batterie", oem: "61217586967", gruppe: "Elektrik", beschreibung: "Starterbatterie", status: "ok", fav: false }
+  ];
 
-function save() {
-  localStorage.setItem("parts", JSON.stringify(parts));
-  localStorage.setItem("favorites", JSON.stringify(favorites));
-  localStorage.setItem("dark", document.body.classList.contains("dark"));
-}
-
-function load() {
-  let p = localStorage.getItem("parts");
-  let f = localStorage.getItem("favorites");
-  let d = localStorage.getItem("dark");
-
-  if (p) parts = JSON.parse(p);
-  if (f) favorites = JSON.parse(f);
-  if (d === "true") document.body.classList.add("dark");
-}
-
-function renderGroups() {
-  let groups = [...new Set(parts.map(p => p.group))];
-  let sel = document.getElementById("groupFilter");
-  sel.innerHTML = '<option value="">Alle Gruppen</option>';
-  groups.forEach(g => {
-    let opt = document.createElement("option");
-    opt.value = g;
-    opt.textContent = g;
-    sel.appendChild(opt);
-  });
-}
-
-function renderList(list = parts) {
-  let search = document.getElementById("search").value.toLowerCase();
-  let group = document.getElementById("groupFilter").value;
-
-  let filtered = list.filter(p =>
-    (!search || p.name.toLowerCase().includes(search) || p.oem.includes(search) || p.group.toLowerCase().includes(search)) &&
-    (!group || p.group === group)
-  );
-
-  let container = document.getElementById("list");
-  container.innerHTML = "";
-
-  filtered.forEach(p => {
-    let div = document.createElement("div");
-    div.className = "item";
-
-    let span = document.createElement("span");
-    span.innerHTML = p.name + "<br><span class='status'>Status: " + p.status + "</span>";
-    span.onclick = () => show(p);
-
-    let star = document.createElement("button");
-    star.className = "star";
-    star.textContent = favorites.includes(p.oem) ? "★" : "☆";
-    star.onclick = () => toggleFavorite(p.oem);
-
-    div.appendChild(span);
-    div.appendChild(star);
-    container.appendChild(div);
-  });
-}
-
-function show(p) {
-  document.getElementById("panel").innerHTML =
-    "<strong>Name:</strong> " + p.name + "<br>" +
-    "<strong>OEM:</strong> " + p.oem + "<br>" +
-    "<strong>Gruppe:</strong> " + p.group + "<br>" +
-    "<strong>Beschreibung:</strong> " + p.desc + "<br>" +
-    "<strong>Status:</strong> " + p.status + "<br>" +
-    "<strong>Notiz:</strong><br><textarea id='noteBox'>" + (p.note || "") + "</textarea>" +
-    "<button class='ok' onclick=\"setStatus('" + p.oem + "','OK')\">OK</button> " +
-    "<button class='warn' onclick=\"setStatus('" + p.oem + "','Beobachten')\">Beobachten</button> " +
-    "<button class='bad' onclick=\"setStatus('" + p.oem + "','Defekt')\">Defekt</button> " +
-    "<button onclick=\"saveNote('" + p.oem + "')\">Notiz speichern</button>";
-}
-
-function addPart() {
-  let name = newName.value;
-  let oem = newOEM.value;
-  let group = newGroup.value;
-  let desc = newDesc.value;
-
-  if (!name || !oem) return alert("Name und OEM sind Pflicht");
-
-  parts.push({name, oem, group, desc, status:"OK", note:""});
-  save();
-  renderGroups();
-  renderList();
-
-  newName.value = newOEM.value = newGroup.value = newDesc.value = "";
-}
-
-function toggleFavorite(oem) {
-  if (favorites.includes(oem)) {
-    favorites = favorites.filter(f => f !== oem);
-  } else {
-    favorites.push(oem);
+  function setSort(mode) {
+    sortMode = mode;
+    renderList();
   }
-  save();
+
+  function toggleFav(i) {
+    teile[i].fav = !teile[i].fav;
+    renderList();
+  }
+
+  function toggleStatus(i) {
+    teile[i].status = teile[i].status === "ok" ? "defekt" : "ok";
+    renderList();
+  }
+
+  function show(i) {
+    const t = teile[i];
+    document.getElementById("panel").innerHTML =
+      "<strong>Name:</strong> " + t.name + "<br>" +
+      "<strong>OEM:</strong> " + t.oem + "<br>" +
+      "<strong>Gruppe:</strong> " + t.gruppe + "<br>" +
+      "<strong>Status:</strong> " + t.status.toUpperCase() + "<br>" +
+      "<strong>Beschreibung:</strong> " + t.beschreibung;
+  }
+
+  function renderList() {
+    const list = document.getElementById("list");
+    list.innerHTML = "";
+
+    let arr = [...teile];
+
+    if (sortMode === "name") arr.sort((a,b) => a.name.localeCompare(b.name));
+    if (sortMode === "gruppe") arr.sort((a,b) => a.gruppe.localeCompare(b.gruppe));
+    if (sortMode === "status") arr.sort((a,b) => a.status.localeCompare(b.status));
+
+    arr.sort((a,b) => (b.fav === true) - (a.fav === true));
+
+    arr.forEach(t => {
+      const i = teile.indexOf(t);
+
+      const div = document.createElement("div");
+      div.className = "item " + t.status;
+
+      const info = document.createElement("div");
+      info.innerHTML =
+        "<div class='name'>" + t.name + "</div>" +
+        "<div class='meta'>" + t.gruppe + "</div>";
+
+      info.onclick = () => show(i);
+
+      const buttons = document.createElement("div");
+      buttons.className = "buttons";
+
+      const star = document.createElement("button");
+      star.className = "star";
+      star.innerText = t.fav ? "★" : "☆";
+      star.onclick = () => toggleFav(i);
+
+      const statusBtn = document.createElement("button");
+      statusBtn.className = "status";
+      statusBtn.innerText = t.status === "ok" ? "OK" : "Defekt";
+      statusBtn.onclick = () => toggleStatus(i);
+
+      buttons.appendChild(star);
+      buttons.appendChild(statusBtn);
+
+      div.appendChild(info);
+      div.appendChild(buttons);
+
+      list.appendChild(div);
+    });
+  }
+
   renderList();
-}
-
-function showFavorites() {
-  let favParts = parts.filter(p => favorites.includes(p.oem));
-  renderList(favParts);
-}
-
-function setStatus(oem, status) {
-  let p = parts.find(x => x.oem === oem);
-  p.status = status;
-  save();
-  renderList();
-  show(p);
-}
-
-function saveNote(oem) {
-  let p = parts.find(x => x.oem === oem);
-  p.note = document.getElementById("noteBox").value;
-  save();
-  alert("Notiz gespeichert");
-}
-
-function toggleDark() {
-  document.body.classList.toggle("dark");
-  save();
-}
-
-load();
-renderGroups();
-renderList();
 </script>
 
 </body>
