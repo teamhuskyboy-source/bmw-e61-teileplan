@@ -6,96 +6,34 @@
 <title>BMW Teileliste</title>
 
 <style>
-body {
-  font-family: Arial, sans-serif;
-  background: #f2f2f2;
-  margin: 0;
-}
-
-header {
-  background: #111;
-  color: #fff;
-  padding: 20px;
-  text-align: center;
-}
-
-.container {
-  padding: 15px;
-}
+body { font-family: Arial, sans-serif; background:#f2f2f2; margin:0; }
+header { background:#111; color:#fff; padding:20px; text-align:center; }
+.container { padding:15px; }
 
 input, select, button, textarea {
-  width: 100%;
-  padding: 10px;
-  margin: 6px 0;
-  border-radius: 8px;
-  border: 1px solid #ccc;
+  width:100%; padding:10px; margin:6px 0;
+  border-radius:8px; border:1px solid #ccc;
+  font-size:16px;
 }
 
-button {
-  background: #3b82f6;
-  color: #fff;
-  border: none;
-  font-weight: bold;
-}
+button { background:#3b82f6; color:white; border:none; font-weight:bold; }
+button:hover { background:#2563eb; }
 
-button:hover {
-  background: #2563eb;
-}
+.vehicle-box { background:#000; color:white; padding:12px; border-radius:12px; margin-bottom:10px; }
 
-.part-card {
-  background: #3b82f6;
-  color: #fff;
-  padding: 15px;
-  border-radius: 12px;
-  margin: 10px 0;
-}
+.part-card { background:#3b82f6; color:white; padding:15px; border-radius:12px; margin:10px 0; }
+.part-header { display:flex; justify-content:space-between; align-items:center; }
+.part-title { font-size:18px; font-weight:bold; }
+.part-category { font-size:14px; opacity:0.9; }
 
-.part-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
+.delete-btn { background:#e11d48; border:none; color:white; border-radius:8px; padding:6px 10px; font-size:16px; }
 
-.part-title {
-  font-size: 18px;
-  font-weight: bold;
-}
+.info-box { background:#fff; color:#000; padding:10px; border-radius:8px; margin-top:10px; font-size:14px; }
 
-.part-category {
-  font-size: 14px;
-  opacity: 0.9;
-}
+.sync-btn { background:#10b981; }
 
-.delete-btn {
-  background: #e11d48;
-  border: none;
-  color: #fff;
-  border-radius: 8px;
-  padding: 6px 10px;
-  font-weight: bold;
-  font-size: 16px;
-}
+.small-btn { background:#6b7280; font-size:14px; padding:8px; }
 
-.info-box {
-  background: #fff;
-  color: #000;
-  padding: 10px;
-  border-radius: 8px;
-  margin-top: 10px;
-  font-size: 14px;
-}
-
-.sync-btn {
-  background: #10b981;
-}
-
-.token-box {
-  background: #000;
-  color: #fff;
-  padding: 12px;
-  border-radius: 10px;
-  margin-bottom: 10px;
-}
 </style>
 </head>
 
@@ -108,30 +46,34 @@ button:hover {
 <div class="container">
 
   <!-- TOKEN -->
-  <div class="token-box">
+  <div class="vehicle-box">
     <input id="tokenInput" placeholder="GitHub Token eingeben">
     <button onclick="saveToken()">Token speichern</button>
   </div>
 
-  <!-- SYNC -->
   <button class="sync-btn" onclick="syncToGitHub()">In GitHub speichern</button>
 
-  <!-- VIN -->
-  <input id="vinInput" placeholder="FIN">
-  <input id="vinNameInput" placeholder="Anzeigename (z. B. E61 Daily)">
-  <button onclick="addVehicle()">Fahrzeug hinzufügen</button>
+  <!-- FAHRZEUG -->
+  <div class="vehicle-box">
+    <select id="vehicleSelect" onchange="selectVehicle()"></select>
+    <input id="vinInput" placeholder="FIN">
+    <input id="vinNameInput" placeholder="Anzeigename (z. B. E61 Daily)">
+    <button onclick="addVehicle()">Fahrzeug hinzufügen</button>
+    <button class="small-btn" onclick="renameVehicle()">Fahrzeug umbenennen</button>
+    <button class="small-btn" onclick="deleteVehicle()">Fahrzeug löschen</button>
+  </div>
 
-  <select id="vehicleSelect" onchange="selectVehicle()">
-    <option value="">Fahrzeug wählen</option>
-  </select>
+  <!-- EXTRA -->
+  <button class="small-btn" onclick="addStandardParts()">Standardteile hinzufügen</button>
+  <button class="small-btn" onclick="importOEM()">OEM-Daten laden</button>
 
-  <!-- Suche + Kategorie -->
+  <!-- FILTER -->
   <input id="searchInput" placeholder="Teil suchen..." oninput="renderParts()">
   <select id="categoryFilter" onchange="renderParts()">
     <option value="">Alle Kategorien</option>
   </select>
 
-  <!-- Teil hinzufügen -->
+  <!-- TEIL -->
   <h3>Teil hinzufügen</h3>
   <input id="partName" placeholder="Teilname">
   <input id="partCategory" placeholder="Kategorie">
@@ -150,50 +92,38 @@ const FILE_PATH = "data.json";
 
 let GITHUB_TOKEN = localStorage.getItem("github_token") || "";
 let data = { vehicles: {} };
-let currentVIN = null;
+let currentVIN = localStorage.getItem("currentVIN") || null;
 
 async function loadFromGitHub() {
-  try {
-    const res = await fetch(`https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/contents/${FILE_PATH}`);
-    const json = await res.json();
-    const content = atob(json.content);
-    data = JSON.parse(content);
-    populateVehicles();
-  } catch (e) {
-    alert("GitHub Laden fehlgeschlagen");
-    console.error(e);
-  }
+  const res = await fetch(`https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/contents/${FILE_PATH}`);
+  const json = await res.json();
+  const content = atob(json.content);
+  data = JSON.parse(content);
+  populateVehicles();
 }
 
 async function syncToGitHub() {
   if (!GITHUB_TOKEN) return alert("Bitte GitHub Token eingeben");
 
-  try {
-    const res = await fetch(`https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/contents/${FILE_PATH}`);
-    const json = await res.json();
+  const res = await fetch(`https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/contents/${FILE_PATH}`);
+  const json = await res.json();
 
-    const newContent = btoa(JSON.stringify(data, null, 2));
+  const newContent = btoa(JSON.stringify(data, null, 2));
 
-    const saveRes = await fetch(`https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/contents/${FILE_PATH}`, {
-      method: "PUT",
-      headers: {
-        "Authorization": "Bearer " + GITHUB_TOKEN,
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify({
-        message: "Update BMW Teileliste",
-        content: newContent,
-        sha: json.sha
-      })
-    });
+  await fetch(`https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/contents/${FILE_PATH}`, {
+    method: "PUT",
+    headers: {
+      "Authorization": "Bearer " + GITHUB_TOKEN,
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({
+      message: "Update BMW Daten",
+      content: newContent,
+      sha: json.sha
+    })
+  });
 
-    if (saveRes.ok) alert("In GitHub gespeichert!");
-    else alert("GitHub Speicherung fehlgeschlagen");
-
-  } catch (e) {
-    console.error(e);
-    alert("GitHub Fehler");
-  }
+  alert("In GitHub gespeichert!");
 }
 
 function saveToken() {
@@ -205,7 +135,7 @@ function saveToken() {
 }
 
 function populateVehicles() {
-  vehicleSelect.innerHTML = '<option value="">Fahrzeug wählen</option>';
+  vehicleSelect.innerHTML = "";
 
   Object.keys(data.vehicles).forEach(vin => {
     const opt = document.createElement("option");
@@ -214,19 +144,21 @@ function populateVehicles() {
     vehicleSelect.appendChild(opt);
   });
 
-  if (!currentVIN && vehicleSelect.options.length > 1) {
-    currentVIN = vehicleSelect.options[1].value;
+  if (!currentVIN && vehicleSelect.options.length) {
+    currentVIN = vehicleSelect.options[0].value;
   }
 
   if (currentVIN) {
     vehicleSelect.value = currentVIN;
   }
 
+  localStorage.setItem("currentVIN", currentVIN);
   renderParts();
 }
 
 function selectVehicle() {
   currentVIN = vehicleSelect.value;
+  localStorage.setItem("currentVIN", currentVIN);
   renderParts();
 }
 
@@ -241,11 +173,76 @@ function addVehicle() {
   }
 
   currentVIN = vin;
-
   vinInput.value = "";
   vinNameInput.value = "";
-
   populateVehicles();
+}
+
+function renameVehicle() {
+  if (!currentVIN) return alert("Kein Fahrzeug gewählt");
+
+  const newName = prompt("Neuer Anzeigename:", data.vehicles[currentVIN].name);
+  if (!newName) return;
+
+  data.vehicles[currentVIN].name = newName;
+  populateVehicles();
+}
+
+function deleteVehicle() {
+  if (!currentVIN) return alert("Kein Fahrzeug gewählt");
+
+  if (!confirm("Fahrzeug wirklich löschen?")) return;
+
+  delete data.vehicles[currentVIN];
+  currentVIN = null;
+  populateVehicles();
+}
+
+function addStandardParts() {
+  if (!currentVIN) return alert("Kein Fahrzeug gewählt");
+
+  const std = [
+    ["Motor", "Motor", "", ""],
+    ["Getriebe", "Getriebe", "", ""],
+    ["Steuergerät DDE", "Steuergeräte", "", ""],
+    ["Turbolader", "Motor", "", ""],
+    ["Injektoren", "Motor", "", ""],
+    ["Bremsen vorne", "Bremsen", "", ""],
+    ["Bremsen hinten", "Bremsen", "", ""],
+    ["Fahrwerk", "Fahrwerk", "", ""],
+    ["Abgasanlage", "Abgasanlage", "", ""],
+    ["Kühler", "Kühlsystem", "", ""],
+    ["Kotflügel", "Karosserie", "", ""],
+    ["Motorhaube", "Karosserie", "", ""],
+    ["Stoßstange vorne", "Karosserie", "", ""],
+    ["Scheinwerfer", "Elektrik", "", ""],
+    ["Kofferraumklappe", "Karosserie", "", ""]
+  ];
+
+  std.forEach(p => {
+    if (!data.vehicles[currentVIN].parts.some(x => x.name === p[0])) {
+      data.vehicles[currentVIN].parts.push({
+        name: p[0],
+        category: p[1],
+        oem: p[2],
+        desc: p[3]
+      });
+    }
+  });
+
+  renderParts();
+}
+
+function importOEM() {
+  if (!currentVIN) return alert("Kein Fahrzeug gewählt");
+
+  data.vehicles[currentVIN].parts.forEach(p => {
+    if (!p.oem) {
+      p.oem = "BMW-" + Math.floor(Math.random() * 1000000);
+    }
+  });
+
+  renderParts();
 }
 
 function addPart() {
@@ -258,19 +255,18 @@ function addPart() {
 
   if (!name || !category) return alert("Name + Kategorie nötig");
 
+  if (data.vehicles[currentVIN].parts.some(p => p.name.toLowerCase() === name.toLowerCase()))
+    return alert("Teil existiert bereits");
+
   data.vehicles[currentVIN].parts.push({ name, category, oem, desc });
 
-  partName.value = "";
-  partCategory.value = "";
-  partOEM.value = "";
-  partDesc.value = "";
-
+  partName.value = partCategory.value = partOEM.value = partDesc.value = "";
   renderParts();
 }
 
-function deletePart(index) {
+function deletePart(i) {
   if (!confirm("Teil löschen?")) return;
-  data.vehicles[currentVIN].parts.splice(index, 1);
+  data.vehicles[currentVIN].parts.splice(i, 1);
   renderParts();
 }
 
@@ -284,8 +280,8 @@ function renderParts() {
   const search = searchInput.value.toLowerCase();
   const filterCat = categoryFilter.value;
 
-  const categories = [...new Set(parts.map(p => p.category))];
-  categories.forEach(c => {
+  const cats = [...new Set(parts.map(p => p.category))];
+  cats.forEach(c => {
     const opt = document.createElement("option");
     opt.value = c;
     opt.textContent = c;
