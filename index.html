@@ -118,10 +118,13 @@
 
 <script>
 let data = JSON.parse(localStorage.getItem("bmwData")) || { vehicles: {} };
-let currentVIN = null;
+let currentVIN = localStorage.getItem("currentVIN") || null;
 
 function saveData() {
   localStorage.setItem("bmwData", JSON.stringify(data));
+  if (currentVIN) {
+    localStorage.setItem("currentVIN", currentVIN);
+  }
 }
 
 function addVehicle() {
@@ -138,13 +141,14 @@ function addVehicle() {
       name,
       parts: []
     };
-    saveData();
   }
+
+  currentVIN = vin;
+  saveData();
 
   vinInput.value = "";
   nameInput.value = "";
 
-  currentVIN = vin;
   renderVehicles();
   renderParts();
 }
@@ -152,12 +156,19 @@ function addVehicle() {
 function renderVehicles() {
   vehicleSelect.innerHTML = "";
 
-  Object.entries(data.vehicles).forEach(([vin, v]) => {
+  const vins = Object.keys(data.vehicles);
+
+  vins.forEach(vin => {
     const opt = document.createElement("option");
     opt.value = vin;
-    opt.textContent = `${v.name} (${vin})`;
+    opt.textContent = `${data.vehicles[vin].name} (${vin})`;
     vehicleSelect.appendChild(opt);
   });
+
+  if (!currentVIN && vins.length > 0) {
+    currentVIN = vins[0];
+    saveData();
+  }
 
   if (currentVIN) {
     vehicleSelect.value = currentVIN;
@@ -165,6 +176,7 @@ function renderVehicles() {
 
   vehicleSelect.onchange = () => {
     currentVIN = vehicleSelect.value;
+    saveData();
     renderParts();
   };
 }
@@ -283,6 +295,7 @@ function renderParts() {
 }
 
 renderVehicles();
+renderParts();
 </script>
 
 </body>
