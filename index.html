@@ -67,8 +67,8 @@ button {
 
 <div class="container">
 
-  <!-- Suche & Filter -->
   <input id="search" placeholder="Teil suchen...">
+
   <select id="categoryFilter">
     <option value="">Alle Kategorien</option>
     <option>Motor</option>
@@ -86,7 +86,6 @@ button {
     <option>Antrieb</option>
   </select>
 
-  <!-- Teil hinzufügen -->
   <h3>Teil hinzufügen</h3>
   <input id="newName" placeholder="Teilname">
   <input id="newCategory" placeholder="Kategorie">
@@ -99,15 +98,47 @@ button {
 </div>
 
 <script>
-let parts = JSON.parse(localStorage.getItem("parts")) || [
+let defaultParts = [
+  {name:"Zylinderkopf", category:"Motor", oem:"11127806100", desc:"M57 Diesel Zylinderkopf"},
+  {name:"Turbolader", category:"Motor", oem:"11657802588", desc:"Abgasturbolader"},
+  {name:"Wasserpumpe", category:"Kühlsystem", oem:"11517788826", desc:"Kühlmittelpumpe"},
+  {name:"Bremscheibe VA", category:"Bremsen", oem:"34116864058", desc:"Belüftete Bremsscheibe vorne"},
+  {name:"Injektor", category:"Kraftstoffsystem", oem:"13537805430", desc:"Common-Rail Injektor"},
+  {name:"Kardanwelle", category:"Antrieb", oem:"26107570956", desc:"xDrive Kardanwelle"},
   {name:"Motorhaube", category:"Karosserie außen", oem:"41617111385", desc:"Motorhaube Touring"},
   {name:"Kotflügel", category:"Karosserie außen", oem:"41357133241", desc:"Kotflügel vorne links"},
   {name:"Tür vorne links", category:"Karosserie außen", oem:"41517202015", desc:"Vordertür links"},
   {name:"Heckklappe", category:"Karosserie außen", oem:"41627111391", desc:"Heckklappe Touring"},
   {name:"Scheinwerfer", category:"Beleuchtung", oem:"63117181293", desc:"Xenon Scheinwerfer links"},
   {name:"Rücklicht", category:"Beleuchtung", oem:"63217181297", desc:"Rückleuchte rechts"},
-  {name:"Sitz", category:"Innenraum", oem:"52107188367", desc:"Komfortsitz Fahrer"}
+  {name:"Sitz", category:"Innenraum", oem:"52107188367", desc:"Komfortsitz Fahrer"},
+  {name:"Getriebe", category:"Getriebe", oem:"24007571213", desc:"6HP Automatikgetriebe"},
+  {name:"DME Steuergerät", category:"Steuergeräte", oem:"12147588817", desc:"Motorsteuergerät"},
+  {name:"Kofferraumverkleidung", category:"Innenraum", oem:"51477164741", desc:"Verkleidung Kofferraum"},
+  {name:"Stoßstange vorne", category:"Karosserie außen", oem:"51117184735", desc:"Frontstoßstange"},
+  {name:"Stoßstange hinten", category:"Karosserie außen", oem:"51127184736", desc:"Heckstoßstange"},
+  {name:"Batterie", category:"Elektrik", oem:"61217586967", desc:"Starterbatterie AGM"},
+  {name:"Lichtmaschine", category:"Elektrik", oem:"12317802588", desc:"Generator"},
+  {name:"Anlasser", category:"Elektrik", oem:"12417802589", desc:"Startermotor"},
+  {name:"AGR Ventil", category:"Abgasanlage", oem:"11717804384", desc:"Abgasrückführventil"},
+  {name:"DPF", category:"Abgasanlage", oem:"18307798164", desc:"Dieselpartikelfilter"}
 ];
+
+let parts = JSON.parse(localStorage.getItem("parts"));
+if (!parts || !parts.length) {
+  parts = defaultParts;
+  localStorage.setItem("parts", JSON.stringify(parts));
+}
+
+// Repariere alte Teile ohne Beschreibung
+parts = parts.map(p => ({
+  name: p.name,
+  category: p.category || "Unbekannt",
+  oem: p.oem || "",
+  desc: p.desc || "– nicht hinterlegt –"
+}));
+
+localStorage.setItem("parts", JSON.stringify(parts));
 
 let favorites = JSON.parse(localStorage.getItem("favorites") || "[]");
 
@@ -119,13 +150,12 @@ function render() {
 
   parts.filter(p => 
     (!cat || p.category === cat) &&
-    (p.name.toLowerCase().includes(search) || (p.oem || "").includes(search))
+    (p.name.toLowerCase().includes(search) ||
+     (p.oem || "").includes(search) ||
+     (p.desc || "").toLowerCase().includes(search))
   ).forEach((p, i) => {
 
     let fav = favorites.includes(p.oem || p.name);
-
-    let oem = p.oem && p.oem.trim() ? p.oem : "– nicht hinterlegt –";
-    let desc = p.desc && p.desc.trim() ? p.desc : "– nicht hinterlegt –";
 
     let div = document.createElement("div");
     div.className = "part";
@@ -134,8 +164,8 @@ function render() {
       <small>${p.category}</small>
       <span class="star" onclick="toggleFav('${p.oem || p.name}', event)">${fav ? "★" : "☆"}</span>
       <div class="details" id="d${i}">
-        <b>OEM:</b> ${oem}<br>
-        <b>Beschreibung:</b> ${desc}
+        <b>OEM:</b> ${p.oem || "– nicht hinterlegt –"}<br>
+        <b>Beschreibung:</b> ${p.desc || "– nicht hinterlegt –"}
       </div>
     `;
 
@@ -170,7 +200,7 @@ function addPart() {
     name: n,
     category: c,
     oem: o || "",
-    desc: d || ""
+    desc: d || "– nicht hinterlegt –"
   });
 
   document.getElementById("newName").value = "";
