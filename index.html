@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>BMW E61 525xd – Teileliste</title>
+<title>Teileliste BMW E61</title>
 
 <style>
 body {
@@ -19,73 +19,68 @@ header {
   text-align: center;
 }
 
-#controls {
+.container {
   padding: 15px;
-  background: #eee;
-  display: flex;
-  gap: 10px;
-  flex-direction: column;
 }
 
-#search, #category, #newName, #newGroup {
+input, select, button {
+  width: 100%;
   padding: 12px;
+  margin-bottom: 10px;
   border-radius: 8px;
   border: 1px solid #ccc;
   font-size: 16px;
 }
 
 button {
-  padding: 12px;
-  border-radius: 8px;
-  border: none;
-  font-size: 16px;
   background: #3b82f6;
   color: white;
-  cursor: pointer;
-}
-
-button:hover {
-  background: #2563eb;
-}
-
-.container {
-  padding: 15px;
+  border: none;
 }
 
 .part {
   background: #3b82f6;
   color: white;
-  border-radius: 15px;
+  border-radius: 12px;
   padding: 15px;
   margin-bottom: 12px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
+  position: relative;
+  cursor: pointer;
 }
 
-.part-info {
-  display: flex;
-  flex-direction: column;
+.part h3 {
+  margin: 0;
 }
 
-.part-name {
-  font-size: 20px;
-  font-weight: bold;
-}
-
-.part-group {
-  font-size: 14px;
-  opacity: 0.9;
-}
-
-.part-status {
-  font-size: 14px;
-  opacity: 0.9;
+.part small {
+  opacity: 0.8;
 }
 
 .star {
-  font-size: 18px;
+  position: absolute;
+  right: 15px;
+  top: 18px;
+  font-size: 20px;
   color: gold;
+}
+
+.details {
+  background: rgba(255,255,255,0.15);
+  padding: 10px;
+  border-radius: 8px;
+  margin-top: 10px;
+  display: none;
+}
+
+.details div {
+  margin-bottom: 5px;
+}
+
+.add-box {
+  background: white;
+  border-radius: 12px;
+  padding: 15px;
+  margin-bottom: 15px;
 }
 </style>
 </head>
@@ -93,206 +88,127 @@ button:hover {
 <body>
 
 <header>
-  <h1>BMW E61 525xd – Teileliste</h1>
+  <h1>Teileliste</h1>
   <p>Suche, filtere oder füge neue Teile hinzu</p>
 </header>
 
-<div id="controls">
-  <input id="search" type="text" placeholder="Teil suchen..." onkeyup="filterParts()">
+<div class="container">
 
-  <select id="category" onchange="filterParts()">
+  <!-- Suche -->
+  <input type="text" id="searchInput" placeholder="Teil suchen..." oninput="renderParts()">
+
+  <!-- Kategorie -->
+  <select id="categoryFilter" onchange="renderParts()">
     <option value="">Alle Kategorien</option>
     <option value="Motor">Motor</option>
     <option value="Getriebe">Getriebe</option>
-    <option value="Kühlsystem">Kühlsystem</option>
-    <option value="Bremsen">Bremsen</option>
-    <option value="Antrieb">Antrieb</option>
     <option value="Elektrik">Elektrik</option>
     <option value="Karosserie">Karosserie</option>
+    <option value="Fahrwerk">Fahrwerk</option>
     <option value="Innenraum">Innenraum</option>
-    <option value="Steuergerät">Steuergerät</option>
-    <option value="Abgasanlage">Abgasanlage</option>
   </select>
 
-  <h3>Teil hinzufügen</h3>
-  <input id="newName" type="text" placeholder="Teilname">
-  <input id="newGroup" type="text" placeholder="Kategorie">
-  <button onclick="addPart()">Hinzufügen</button>
-</div>
-
-<div class="container" id="partList">
-
-  <!-- MOTOR -->
-  <div class="part" data-name="Zylinderkopf" data-group="Motor">
-    <div class="part-info">
-      <div class="part-name">Zylinderkopf</div>
-      <div class="part-group">Motor</div>
-      <div class="part-status">Status: undefined</div>
-    </div>
-    <div class="star">☆</div>
+  <!-- Teil hinzufügen -->
+  <div class="add-box">
+    <h3>Teil hinzufügen</h3>
+    <input id="newName" placeholder="Teilname">
+    <input id="newCategory" placeholder="Kategorie">
+    <input id="newOEM" placeholder="OEM Nummer">
+    <input id="newDesc" placeholder="Beschreibung">
+    <button onclick="addPart()">Hinzufügen</button>
   </div>
 
-  <div class="part" data-name="Turbolader" data-group="Motor">
-    <div class="part-info">
-      <div class="part-name">Turbolader</div>
-      <div class="part-group">Motor</div>
-      <div class="part-status">Status: undefined</div>
-    </div>
-    <div class="star">☆</div>
-  </div>
-
-  <div class="part" data-name="Injektor" data-group="Motor">
-    <div class="part-info">
-      <div class="part-name">Injektor</div>
-      <div class="part-group">Motor</div>
-      <div class="part-status">Status: undefined</div>
-    </div>
-    <div class="star">☆</div>
-  </div>
-
-  <div class="part" data-name="Luftmassenmesser" data-group="Motor">
-    <div class="part-info">
-      <div class="part-name">Luftmassenmesser</div>
-      <div class="part-group">Motor</div>
-      <div class="part-status">Status: undefined</div>
-    </div>
-    <div class="star">☆</div>
-  </div>
-
-  <!-- GETRIEBE -->
-  <div class="part" data-name="Automatikgetriebe" data-group="Getriebe">
-    <div class="part-info">
-      <div class="part-name">Automatikgetriebe</div>
-      <div class="part-group">Getriebe</div>
-      <div class="part-status">Status: undefined</div>
-    </div>
-    <div class="star">☆</div>
-  </div>
-
-  <div class="part" data-name="Kupplung" data-group="Getriebe">
-    <div class="part-info">
-      <div class="part-name">Kupplung</div>
-      <div class="part-group">Getriebe</div>
-      <div class="part-status">Status: undefined</div>
-    </div>
-    <div class="star">☆</div>
-  </div>
-
-  <!-- KAROSSERIE -->
-  <div class="part" data-name="Motorhaube" data-group="Karosserie">
-    <div class="part-info">
-      <div class="part-name">Motorhaube</div>
-      <div class="part-group">Karosserie</div>
-      <div class="part-status">Status: undefined</div>
-    </div>
-    <div class="star">☆</div>
-  </div>
-
-  <div class="part" data-name="Kotflügel vorne links" data-group="Karosserie">
-    <div class="part-info">
-      <div class="part-name">Kotflügel vorne links</div>
-      <div class="part-group">Karosserie</div>
-      <div class="part-status">Status: undefined</div>
-    </div>
-    <div class="star">☆</div>
-  </div>
-
-  <div class="part" data-name="Rücklicht rechts" data-group="Karosserie">
-    <div class="part-info">
-      <div class="part-name">Rücklicht rechts</div>
-      <div class="part-group">Karosserie</div>
-      <div class="part-status">Status: undefined</div>
-    </div>
-    <div class="star">☆</div>
-  </div>
-
-  <!-- ELEKTRIK -->
-  <div class="part" data-name="Batterie" data-group="Elektrik">
-    <div class="part-info">
-      <div class="part-name">Batterie</div>
-      <div class="part-group">Elektrik</div>
-      <div class="part-status">Status: undefined</div>
-    </div>
-    <div class="star">☆</div>
-  </div>
-
-  <div class="part" data-name="Lichtmaschine" data-group="Elektrik">
-    <div class="part-info">
-      <div class="part-name">Lichtmaschine</div>
-      <div class="part-group">Elektrik</div>
-      <div class="part-status">Status: undefined</div>
-    </div>
-    <div class="star">☆</div>
-  </div>
-
-  <!-- STEUERGERÄTE -->
-  <div class="part" data-name="Motorsteuergerät DDE" data-group="Steuergerät">
-    <div class="part-info">
-      <div class="part-name">Motorsteuergerät DDE</div>
-      <div class="part-group">Steuergerät</div>
-      <div class="part-status">Status: undefined</div>
-    </div>
-    <div class="star">☆</div>
-  </div>
-
-  <div class="part" data-name="Getriebesteuergerät EGS" data-group="Steuergerät">
-    <div class="part-info">
-      <div class="part-name">Getriebesteuergerät EGS</div>
-      <div class="part-group">Steuergerät</div>
-      <div class="part-status">Status: undefined</div>
-    </div>
-    <div class="star">☆</div>
-  </div>
+  <!-- Teileliste -->
+  <div id="partsList"></div>
 
 </div>
 
 <script>
-function filterParts() {
-  const search = document.getElementById("search").value.toLowerCase();
-  const category = document.getElementById("category").value;
-  const parts = document.querySelectorAll(".part");
+let parts = JSON.parse(localStorage.getItem("parts")) || [
+  {id:1,name:"Zylinderkopf",category:"Motor",oem:"11127806100",desc:"M57 Diesel Zylinderkopf",status:"OK",fav:false},
+  {id:2,name:"Turbolader",category:"Motor",oem:"11657802588",desc:"Abgasturbolader",status:"OK",fav:false},
+  {id:3,name:"Wasserpumpe",category:"Motor",oem:"11517788826",desc:"Kühlmittelpumpe",status:"OK",fav:false},
+  {id:4,name:"Bremscheibe VA",category:"Fahrwerk",oem:"34116864058",desc:"Belüftete Bremsscheibe vorne",status:"OK",fav:false},
+  {id:5,name:"Injektor",category:"Motor",oem:"13537805430",desc:"Common-Rail Injektor",status:"OK",fav:false},
+  {id:6,name:"Kardanwelle",category:"Getriebe",oem:"26107570956",desc:"xDrive Kardanwelle",status:"OK",fav:false},
+  {id:7,name:"Rücklicht",category:"Karosserie",oem:"63217160793",desc:"Rückleuchte rechts",status:"OK",fav:false},
+  {id:8,name:"Batterie",category:"Elektrik",oem:"61217586967",desc:"Starterbatterie",status:"OK",fav:false}
+];
 
-  parts.forEach(part => {
-    const name = part.dataset.name.toLowerCase();
-    const group = part.dataset.group;
+function save() {
+  localStorage.setItem("parts", JSON.stringify(parts));
+}
 
-    const matchesSearch = name.includes(search);
-    const matchesCategory = category === "" || group === category;
+function toggleDetails(id) {
+  const el = document.getElementById("details-"+id);
+  el.style.display = el.style.display === "none" ? "block" : "none";
+}
 
-    part.style.display = (matchesSearch && matchesCategory) ? "flex" : "none";
-  });
+function toggleFav(id) {
+  const p = parts.find(x => x.id === id);
+  p.fav = !p.fav;
+  save();
+  renderParts();
 }
 
 function addPart() {
-  const name = document.getElementById("newName").value.trim();
-  const group = document.getElementById("newGroup").value.trim();
+  const name = newName.value.trim();
+  const cat = newCategory.value.trim();
+  const oem = newOEM.value.trim();
+  const desc = newDesc.value.trim();
+  if(!name || !cat) return alert("Name & Kategorie erforderlich");
 
-  if (name === "" || group === "") {
-    alert("Bitte Name und Kategorie eingeben");
-    return;
-  }
+  parts.push({
+    id: Date.now(),
+    name,
+    category: cat,
+    oem,
+    desc,
+    status: "OK",
+    fav: false
+  });
 
-  const partList = document.getElementById("partList");
+  newName.value = "";
+  newCategory.value = "";
+  newOEM.value = "";
+  newDesc.value = "";
 
-  const partDiv = document.createElement("div");
-  partDiv.className = "part";
-  partDiv.dataset.name = name;
-  partDiv.dataset.group = group;
-
-  partDiv.innerHTML = `
-    <div class="part-info">
-      <div class="part-name">${name}</div>
-      <div class="part-group">${group}</div>
-      <div class="part-status">Status: undefined</div>
-    </div>
-    <div class="star">☆</div>
-  `;
-
-  partList.appendChild(partDiv);
-
-  document.getElementById("newName").value = "";
-  document.getElementById("newGroup").value = "";
+  save();
+  renderParts();
 }
+
+function renderParts() {
+  const search = searchInput.value.toLowerCase();
+  const cat = categoryFilter.value;
+
+  partsList.innerHTML = "";
+
+  parts
+    .filter(p => 
+      p.name.toLowerCase().includes(search) &&
+      (cat === "" || p.category === cat)
+    )
+    .forEach(p => {
+      partsList.innerHTML += `
+        <div class="part" onclick="toggleDetails(${p.id})">
+          <h3>${p.name}</h3>
+          <small>${p.category}</small><br>
+          <small>Status: ${p.status}</small>
+
+          <div class="star" onclick="event.stopPropagation();toggleFav(${p.id})">
+            ${p.fav ? "★" : "☆"}
+          </div>
+
+          <div class="details" id="details-${p.id}">
+            <div><b>OEM:</b> ${p.oem || "-"}</div>
+            <div><b>Beschreibung:</b> ${p.desc || "-"}</div>
+          </div>
+        </div>
+      `;
+    });
+}
+
+renderParts();
 </script>
 
 </body>
