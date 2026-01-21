@@ -2,14 +2,14 @@
 <html lang="de">
 <head>
 <meta charset="UTF-8">
-<title>BMW E61 Teileliste</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BMW E61 Teileliste</title>
 
 <style>
 body {
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif;
-  background: #f2f2f7;
+  font-family: Arial, sans-serif;
   margin: 0;
+  background: #f2f2f2;
 }
 
 header {
@@ -25,11 +25,11 @@ header {
   margin: auto;
 }
 
-input, select, textarea, button {
+input, select, button {
   width: 100%;
-  padding: 12px;
-  margin: 8px 0;
-  border-radius: 10px;
+  padding: 10px;
+  margin: 5px 0;
+  border-radius: 8px;
   border: 1px solid #ccc;
   font-size: 16px;
 }
@@ -38,17 +38,15 @@ button {
   background: #3b82f6;
   color: white;
   border: none;
-  cursor: pointer;
 }
 
-button.secondary {
-  background: #888;
+button:hover {
+  background: #2563eb;
 }
 
 .part-row {
   display: flex;
-  gap: 10px;
-  align-items: stretch;
+  align-items: center;
   margin: 10px 0;
 }
 
@@ -56,27 +54,41 @@ button.secondary {
   flex: 1;
   background: #3b82f6;
   color: white;
-  border-radius: 15px;
   padding: 15px;
+  border-radius: 15px;
+  cursor: pointer;
 }
 
-.part-card small {
-  opacity: 0.85;
+.part-card strong {
+  font-size: 18px;
 }
 
 .delete-btn {
-  width: 50px;
+  margin-left: 10px;
   background: #e11d48;
-  border-radius: 12px;
-  font-size: 20px;
+  border: none;
+  color: white;
+  border-radius: 10px;
+  width: 50px;
+  height: 50px;
+  font-size: 22px;
+  cursor: pointer;
+}
+
+.delete-btn:hover {
+  background: #be123c;
 }
 
 .panel {
   background: white;
-  border-left: 4px solid #3b82f6;
-  padding: 12px;
-  border-radius: 10px;
-  margin-top: 10px;
+  border-left: 5px solid #3b82f6;
+  padding: 10px;
+  margin: 5px 0 15px 0;
+  border-radius: 8px;
+}
+
+.inline-panel {
+  margin: 5px 0 15px 0;
 }
 </style>
 </head>
@@ -84,140 +96,63 @@ button.secondary {
 <body>
 
 <header>
-  <h1>Teileliste BMW E61</h1>
-  <p>Tippen auf Teil = Infos • ❌ = Löschen</p>
+  <h1>Teileliste</h1>
+  <p>Suche, filtere oder füge neue Teile hinzu</p>
 </header>
 
 <div class="container">
 
-  <input id="vinInput" placeholder="VIN eingeben">
-
-  <input id="searchInput" placeholder="Teil suchen..." oninput="renderParts()">
-
-  <select id="categoryFilter" onchange="renderParts()">
+  <input type="text" id="searchInput" placeholder="Teil suchen...">
+  <select id="categoryFilter">
     <option value="">Alle Kategorien</option>
-    <option>Motor</option>
-    <option>Getriebe</option>
-    <option>Kraftstoff</option>
-    <option>Abgasanlage</option>
-    <option>Kühlsystem</option>
-    <option>Bremsen</option>
-    <option>Elektrik</option>
-    <option>Karosserie außen</option>
-    <option>Innenraum</option>
-    <option>Beleuchtung</option>
-    <option>Steuergeräte</option>
   </select>
 
-  <button class="secondary" onclick="removeDuplicates()">Doppelte Teile entfernen</button>
-
   <h3>Teil hinzufügen</h3>
-  <input id="nameInput" placeholder="Teilname">
-  <input id="categoryInput" placeholder="Kategorie">
-  <input id="oemInput" placeholder="OEM Nummer">
-  <textarea id="descInput" placeholder="Beschreibung"></textarea>
+  <input type="text" id="newName" placeholder="Teilname">
+  <input type="text" id="newCategory" placeholder="Kategorie">
+  <input type="text" id="newOEM" placeholder="OEM Nummer">
+  <input type="text" id="newDesc" placeholder="Beschreibung">
   <button onclick="addPart()">Hinzufügen</button>
 
   <div id="partsList"></div>
-  <div id="infoPanel" class="panel" style="display:none;"></div>
 
 </div>
 
 <script>
-let vin = localStorage.getItem("vin") || "";
-document.getElementById("vinInput").value = vin;
-
-let defaultParts = [
-  {name:"Zylinderkopf", category:"Motor", oem:"", desc:"M57 Diesel Zylinderkopf"},
-  {name:"Turbolader", category:"Motor", oem:"", desc:"Abgasturbolader"},
-  {name:"Injektor", category:"Kraftstoff", oem:"", desc:"Common-Rail Injektor"},
-  {name:"Hochdruckpumpe", category:"Kraftstoff", oem:"", desc:"Hochdruckpumpe"},
-  {name:"Wasserpumpe", category:"Kühlsystem", oem:"", desc:"Kühlmittelpumpe"},
-  {name:"Thermostat", category:"Kühlsystem", oem:"", desc:"Motorthermostat"},
-  {name:"Getriebe", category:"Getriebe", oem:"", desc:"Automatikgetriebe"},
-  {name:"Kardanwelle", category:"Getriebe", oem:"", desc:"xDrive Kardanwelle"},
-  {name:"Differenzial", category:"Getriebe", oem:"", desc:"Hinterachsdifferenzial"},
-  {name:"Bremsscheibe VA", category:"Bremsen", oem:"", desc:"Belüftete Bremsscheibe vorne"},
-  {name:"Bremssattel", category:"Bremsen", oem:"", desc:"Vorderer Bremssattel"},
-  {name:"ABS Steuergerät", category:"Steuergeräte", oem:"", desc:"ABS/DSC Modul"},
-  {name:"Motorsteuergerät", category:"Steuergeräte", oem:"", desc:"DDE Steuergerät"},
-  {name:"Scheinwerfer", category:"Beleuchtung", oem:"", desc:"Frontscheinwerfer"},
-  {name:"Rücklicht", category:"Beleuchtung", oem:"", desc:"Rückleuchte"},
-  {name:"Batterie", category:"Elektrik", oem:"", desc:"Starterbatterie"},
-  {name:"Kotflügel", category:"Karosserie außen", oem:"", desc:"Vorderer Kotflügel"},
-  {name:"Motorhaube", category:"Karosserie außen", oem:"", desc:"Haube"},
-  {name:"Tür vorne links", category:"Karosserie außen", oem:"", desc:"Fahrertür"},
-  {name:"Heckklappe", category:"Karosserie außen", oem:"", desc:"Kofferraumklappe"},
-  {name:"Sitz", category:"Innenraum", oem:"", desc:"Vordersitz"},
-  {name:"Lenkrad", category:"Innenraum", oem:"", desc:"Multifunktionslenkrad"}
+let parts = [
+  { name: "Zylinderkopf", category: "Motor", oem: "", desc: "M57 Diesel Zylinderkopf" },
+  { name: "Turbolader", category: "Motor", oem: "", desc: "Abgasturbolader" },
+  { name: "Wasserpumpe", category: "Kühlsystem", oem: "", desc: "Kühlmittelpumpe" },
+  { name: "Bremscheibe VA", category: "Bremsen", oem: "", desc: "Belüftete Bremsscheibe vorne" },
+  { name: "Injektor", category: "Kraftstoff", oem: "", desc: "Common-Rail Injektor" },
+  { name: "Kardanwelle", category: "Antrieb", oem: "", desc: "xDrive Kardanwelle" },
+  { name: "Batterie", category: "Elektrik", oem: "", desc: "Starterbatterie" },
+  { name: "Kotflügel", category: "Karosserie außen", oem: "", desc: "" },
+  { name: "Motorhaube", category: "Karosserie außen", oem: "", desc: "" },
+  { name: "Tür vorne links", category: "Karosserie außen", oem: "", desc: "" },
+  { name: "Heckklappe", category: "Karosserie außen", oem: "", desc: "" },
+  { name: "Scheinwerfer", category: "Beleuchtung", oem: "", desc: "" },
+  { name: "Rücklicht", category: "Beleuchtung", oem: "", desc: "" },
+  { name: "Sitz", category: "Innenraum", oem: "", desc: "" },
+  { name: "Lenkrad", category: "Innenraum", oem: "", desc: "" }
 ];
 
-let parts = [];
+const partsList = document.getElementById("partsList");
+const searchInput = document.getElementById("searchInput");
+const categoryFilter = document.getElementById("categoryFilter");
 
-function loadParts() {
-  let key = "parts_" + vin;
-  let saved = localStorage.getItem(key);
-  parts = saved ? JSON.parse(saved) : JSON.parse(JSON.stringify(defaultParts));
-  renderParts();
-}
+searchInput.addEventListener("input", renderParts);
+categoryFilter.addEventListener("change", renderParts);
 
-function saveParts() {
-  if (!vin) return;
-  localStorage.setItem("parts_" + vin, JSON.stringify(parts));
-}
-
-document.getElementById("vinInput").oninput = () => {
-  vin = document.getElementById("vinInput").value.trim();
-  localStorage.setItem("vin", vin);
-  loadParts();
-};
-
-function addPart() {
-  const name = nameInput.value.trim();
-  const category = categoryInput.value.trim();
-  const oem = oemInput.value.trim();
-  const desc = descInput.value.trim();
-
-  if (!name || !category) return alert("Name und Kategorie sind Pflicht!");
-
-  const exists = parts.some(p =>
-    p.name.toLowerCase() === name.toLowerCase() &&
-    p.category.toLowerCase() === category.toLowerCase()
-  );
-
-  if (exists) return alert("Dieses Teil existiert bereits!");
-
-  parts.push({name, category, oem, desc});
-  saveParts();
-
-  nameInput.value = "";
-  categoryInput.value = "";
-  oemInput.value = "";
-  descInput.value = "";
-
-  renderParts();
-}
-
-function deletePart(index) {
-  if (!confirm("Teil wirklich löschen?")) return;
-  parts.splice(index, 1);
-  saveParts();
-  renderParts();
-  infoPanel.style.display = "none";
-}
-
-function removeDuplicates() {
-  const seen = {};
-  parts = parts.filter(p => {
-    const key = p.name.toLowerCase() + "|" + p.category.toLowerCase();
-    if (seen[key]) return false;
-    seen[key] = true;
-    return true;
+function updateCategories() {
+  const cats = [...new Set(parts.map(p => p.category))];
+  categoryFilter.innerHTML = `<option value="">Alle Kategorien</option>`;
+  cats.forEach(c => {
+    const opt = document.createElement("option");
+    opt.value = c;
+    opt.textContent = c;
+    categoryFilter.appendChild(opt);
   });
-
-  saveParts();
-  renderParts();
-  alert("Doppelte Teile wurden entfernt.");
 }
 
 function renderParts() {
@@ -236,7 +171,7 @@ function renderParts() {
     row.className = "part-row";
 
     row.innerHTML = `
-      <div class="part-card" onclick="showInfo(${i})">
+      <div class="part-card" onclick="toggleInfo(${i}, this)">
         <strong>${p.name}</strong><br>
         <small>${p.category}</small>
       </div>
@@ -247,18 +182,66 @@ function renderParts() {
   });
 }
 
-function showInfo(i) {
+function toggleInfo(i, cardEl) {
+  document.querySelectorAll(".inline-panel").forEach(p => p.remove());
+
+  if (cardEl.classList.contains("open")) {
+    cardEl.classList.remove("open");
+    return;
+  }
+
+  document.querySelectorAll(".part-card").forEach(c => c.classList.remove("open"));
+  cardEl.classList.add("open");
+
   const p = parts[i];
-  infoPanel.style.display = "block";
-  infoPanel.innerHTML = `
+
+  const panel = document.createElement("div");
+  panel.className = "panel inline-panel";
+  panel.innerHTML = `
     <strong>Name:</strong> ${p.name}<br>
     <strong>Kategorie:</strong> ${p.category}<br>
     <strong>OEM:</strong> ${p.oem || "-"}<br>
     <strong>Beschreibung:</strong> ${p.desc || "-"}
   `;
+
+  cardEl.parentNode.insertAdjacentElement("afterend", panel);
 }
 
-if (vin) loadParts();
+function addPart() {
+  const name = document.getElementById("newName").value.trim();
+  const category = document.getElementById("newCategory").value.trim();
+  const oem = document.getElementById("newOEM").value.trim();
+  const desc = document.getElementById("newDesc").value.trim();
+
+  if (!name || !category) {
+    alert("Name und Kategorie sind Pflicht!");
+    return;
+  }
+
+  if (parts.some(p => p.name.toLowerCase() === name.toLowerCase())) {
+    alert("Dieses Teil existiert bereits!");
+    return;
+  }
+
+  parts.push({ name, category, oem, desc });
+
+  document.getElementById("newName").value = "";
+  document.getElementById("newCategory").value = "";
+  document.getElementById("newOEM").value = "";
+  document.getElementById("newDesc").value = "";
+
+  updateCategories();
+  renderParts();
+}
+
+function deletePart(i) {
+  if (!confirm("Teil wirklich löschen?")) return;
+  parts.splice(i, 1);
+  renderParts();
+}
+
+updateCategories();
+renderParts();
 </script>
 
 </body>
