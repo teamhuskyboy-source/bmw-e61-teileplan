@@ -1,3 +1,8 @@
 {
-  "vehicles": {}
+  "vehicles": {
+    "WBAPY51000CX14466": {
+      "name": "BMW e61 525xd blau",
+      "parts": []
+    }
+  }
 }
