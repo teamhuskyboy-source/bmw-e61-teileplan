@@ -9,6 +9,12 @@ body {
   font-family: Arial, sans-serif;
   margin: 0;
   background: #f4f4f4;
+  color: #000;
+}
+
+.dark body {
+  background: #111;
+  color: #eee;
 }
 
 header {
@@ -18,23 +24,36 @@ header {
   text-align: center;
 }
 
-#controls {
-  padding: 10px;
-  background: #fff;
+.dark header {
+  background: #000;
 }
 
-input, select, button {
+#controls, #panel, #addForm {
+  background: #fff;
+  margin: 10px;
+  padding: 10px;
+  border-radius: 10px;
+}
+
+.dark #controls, 
+.dark #panel, 
+.dark #addForm {
+  background: #1f1f1f;
+}
+
+input, select, textarea, button {
   width: 100%;
   padding: 10px;
-  margin: 5px 0;
+  margin: 6px 0;
   font-size: 16px;
+  border-radius: 6px;
+  border: 1px solid #ccc;
 }
 
 button {
   background: #3b82f6;
   color: white;
   border: none;
-  border-radius: 6px;
 }
 
 button.star {
@@ -42,16 +61,16 @@ button.star {
   color: black;
 }
 
-#list {
-  padding: 10px;
-}
+button.ok { background:#22c55e; }
+button.bad { background:#ef4444; }
+button.warn { background:#f59e0b; }
 
 .item {
   background: #3b82f6;
   color: #fff;
   padding: 12px;
-  border-radius: 8px;
-  margin-bottom: 10px;
+  border-radius: 10px;
+  margin: 10px;
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -61,22 +80,13 @@ button.star {
   font-size: 16px;
 }
 
-#panel {
-  background: #fff;
-  margin: 10px;
-  padding: 10px;
-  border-left: 4px solid #3b82f6;
-}
-
-#addForm {
-  background: #fff;
-  margin: 10px;
-  padding: 10px;
-  border-left: 4px solid #22c55e;
+.status {
+  font-size: 12px;
+  opacity: 0.9;
 }
 </style>
 </head>
-<body>
+<body id="app">
 
 <header>
   <h1>BMW E61 525xd – Teileliste</h1>
@@ -90,7 +100,8 @@ button.star {
     <option value="">Alle Gruppen</option>
   </select>
 
-  <button onclick="showFavorites()">⭐ Favoriten anzeigen</button>
+  <button onclick="showFavorites()">⭐ Favoriten</button>
+  <button onclick="toggleDark()">🌙 Dark Mode</button>
 </div>
 
 <div id="list"></div>
@@ -100,7 +111,7 @@ button.star {
 </div>
 
 <div id="addForm">
-  <h3>➕ Neues Teil hinzufügen</h3>
+  <h3>➕ Neues Teil</h3>
   <input id="newName" placeholder="Name">
   <input id="newOEM" placeholder="OEM">
   <input id="newGroup" placeholder="Gruppe">
@@ -110,14 +121,14 @@ button.star {
 
 <script>
 let parts = [
-  {name:"Zylinderkopf", oem:"11127806100", group:"Motor", desc:"M57 Diesel Zylinderkopf"},
-  {name:"Turbolader", oem:"11657802588", group:"Turbo", desc:"Abgasturbolader"},
-  {name:"Wasserpumpe", oem:"11517788826", group:"Kühlsystem", desc:"Kühlmittelpumpe"},
-  {name:"Bremsscheibe VA", oem:"34116864058", group:"Bremsen", desc:"Belüftete Bremsscheibe vorne"},
-  {name:"Injektor", oem:"13537805430", group:"Kraftstoff", desc:"Common-Rail Injektor"},
-  {name:"Kardanwelle", oem:"26107570956", group:"Antrieb", desc:"xDrive Kardanwelle"},
-  {name:"Rücklicht", oem:"63217160793", group:"Karosserie", desc:"Rückleuchte rechts"},
-  {name:"Batterie", oem:"61217586967", group:"Elektrik", desc:"Starterbatterie"}
+  {name:"Zylinderkopf", oem:"11127806100", group:"Motor", desc:"M57 Diesel Zylinderkopf", status:"OK", note:""},
+  {name:"Turbolader", oem:"11657802588", group:"Turbo", desc:"Abgasturbolader", status:"OK", note:""},
+  {name:"Wasserpumpe", oem:"11517788826", group:"Kühlsystem", desc:"Kühlmittelpumpe", status:"OK", note:""},
+  {name:"Bremsscheibe VA", oem:"34116864058", group:"Bremsen", desc:"Belüftete Bremsscheibe vorne", status:"OK", note:""},
+  {name:"Injektor", oem:"13537805430", group:"Kraftstoff", desc:"Common-Rail Injektor", status:"OK", note:""},
+  {name:"Kardanwelle", oem:"26107570956", group:"Antrieb", desc:"xDrive Kardanwelle", status:"OK", note:""},
+  {name:"Rücklicht", oem:"63217160793", group:"Karosserie", desc:"Rückleuchte rechts", status:"OK", note:""},
+  {name:"Batterie", oem:"61217586967", group:"Elektrik", desc:"Starterbatterie", status:"OK", note:""}
 ];
 
 let favorites = [];
@@ -125,13 +136,17 @@ let favorites = [];
 function save() {
   localStorage.setItem("parts", JSON.stringify(parts));
   localStorage.setItem("favorites", JSON.stringify(favorites));
+  localStorage.setItem("dark", document.body.classList.contains("dark"));
 }
 
 function load() {
   let p = localStorage.getItem("parts");
   let f = localStorage.getItem("favorites");
+  let d = localStorage.getItem("dark");
+
   if (p) parts = JSON.parse(p);
   if (f) favorites = JSON.parse(f);
+  if (d === "true") document.body.classList.add("dark");
 }
 
 function renderGroups() {
@@ -163,7 +178,7 @@ function renderList(list = parts) {
     div.className = "item";
 
     let span = document.createElement("span");
-    span.textContent = p.name;
+    span.innerHTML = p.name + "<br><span class='status'>Status: " + p.status + "</span>";
     span.onclick = () => show(p);
 
     let star = document.createElement("button");
@@ -182,7 +197,13 @@ function show(p) {
     "<strong>Name:</strong> " + p.name + "<br>" +
     "<strong>OEM:</strong> " + p.oem + "<br>" +
     "<strong>Gruppe:</strong> " + p.group + "<br>" +
-    "<strong>Beschreibung:</strong> " + p.desc;
+    "<strong>Beschreibung:</strong> " + p.desc + "<br>" +
+    "<strong>Status:</strong> " + p.status + "<br>" +
+    "<strong>Notiz:</strong><br><textarea id='noteBox'>" + (p.note || "") + "</textarea>" +
+    "<button class='ok' onclick=\"setStatus('" + p.oem + "','OK')\">OK</button> " +
+    "<button class='warn' onclick=\"setStatus('" + p.oem + "','Beobachten')\">Beobachten</button> " +
+    "<button class='bad' onclick=\"setStatus('" + p.oem + "','Defekt')\">Defekt</button> " +
+    "<button onclick=\"saveNote('" + p.oem + "')\">Notiz speichern</button>";
 }
 
 function addPart() {
@@ -193,7 +214,7 @@ function addPart() {
 
   if (!name || !oem) return alert("Name und OEM sind Pflicht");
 
-  parts.push({name, oem, group, desc});
+  parts.push({name, oem, group, desc, status:"OK", note:""});
   save();
   renderGroups();
   renderList();
@@ -214,6 +235,26 @@ function toggleFavorite(oem) {
 function showFavorites() {
   let favParts = parts.filter(p => favorites.includes(p.oem));
   renderList(favParts);
+}
+
+function setStatus(oem, status) {
+  let p = parts.find(x => x.oem === oem);
+  p.status = status;
+  save();
+  renderList();
+  show(p);
+}
+
+function saveNote(oem) {
+  let p = parts.find(x => x.oem === oem);
+  p.note = document.getElementById("noteBox").value;
+  save();
+  alert("Notiz gespeichert");
+}
+
+function toggleDark() {
+  document.body.classList.toggle("dark");
+  save();
 }
 
 load();
