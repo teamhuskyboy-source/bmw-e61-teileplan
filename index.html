@@ -98,15 +98,19 @@ button {
 <div id="partsList"></div>
 
 <script>
-const REPO_OWNER = "bmw-e61-app";
-const REPO_NAME = "bmw-e61-app";
+// 🔧 HIER DEINE GITHUB-DATEN EINTRAGEN
+const REPO_OWNER = "pascal";
+const REPO_NAME  = "bmw-e61";
 const FILE_PATH = "data.json";
 
 let githubToken = localStorage.getItem("github_token") || "";
 let cloudData = { vehicles: {} };
 let currentVin = "";
+let lastVin = localStorage.getItem("bmw_last_vin") || "";
 
 const vehicleSelect = document.getElementById("vehicleSelect");
+const vinInput = document.getElementById("vinInput");
+const vehicleNameInput = document.getElementById("vehicleNameInput");
 
 async function loadCloud() {
   if (!githubToken) {
@@ -123,6 +127,14 @@ async function loadCloud() {
   localStorage.setItem("cloud_sha", data.sha);
 
   renderVehicles();
+
+  if (lastVin && cloudData.vehicles[lastVin]) {
+    currentVin = lastVin;
+    vehicleSelect.value = lastVin;
+  }
+
+  renderParts();
+  updateCategories();
 }
 
 async function saveCloud() {
@@ -159,12 +171,11 @@ function renderVehicles() {
   }
 
   vehicleSelect.value = currentVin;
-  renderParts();
-  updateCategories();
 }
 
 vehicleSelect.onchange = () => {
   currentVin = vehicleSelect.value;
+  localStorage.setItem("bmw_last_vin", currentVin);
   renderParts();
   updateCategories();
 };
@@ -179,6 +190,9 @@ function addVehicle() {
 
   cloudData.vehicles[vin] = { name, parts: [] };
   currentVin = vin;
+  lastVin = vin;
+
+  localStorage.setItem("bmw_last_vin", currentVin);
 
   vinInput.value = "";
   vehicleNameInput.value = "";
