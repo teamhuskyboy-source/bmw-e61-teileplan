@@ -3,7 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>BMW E61 Teileliste</title>
+<title>BMW E61 525xd – Teileliste</title>
+
 <style>
 body { font-family: Arial, sans-serif; margin:0; background:#f2f2f2; }
 header { background:#111; color:#fff; padding:20px; text-align:center; }
@@ -55,15 +56,21 @@ button {
 }
 </style>
 </head>
+
 <body>
 
 <header>
-  <h1>BMW E61 525xd</h1>
-  <p>Teileliste</p>
+  <h1>BMW E61 525xd – Teileliste</h1>
+  <p>VIN speichern, Teile suchen & verwalten</p>
 </header>
 
 <div class="container">
 
+  <!-- VIN -->
+  <input id="vinInput" placeholder="Fahrzeug-VIN eingeben">
+  <button onclick="saveVIN()">VIN speichern</button>
+
+  <!-- Suche & Filter -->
   <input id="search" placeholder="Teil suchen...">
   <select id="categoryFilter">
     <option value="">Alle Kategorien</option>
@@ -82,6 +89,7 @@ button {
     <option>Antrieb</option>
   </select>
 
+  <!-- Teil hinzufügen -->
   <h3>Teil hinzufügen</h3>
   <input id="newName" placeholder="Teilname">
   <input id="newCategory" placeholder="Kategorie">
@@ -94,42 +102,95 @@ button {
 </div>
 
 <script>
-let parts = [
+// VIN
+let savedVIN = localStorage.getItem("vin") || "";
+document.getElementById("vinInput").value = savedVIN;
+
+function saveVIN() {
+  const vin = document.getElementById("vinInput").value.trim();
+  localStorage.setItem("vin", vin);
+  alert("VIN gespeichert");
+}
+
+// Teile
+let parts = JSON.parse(localStorage.getItem("parts")) || [
+
+  // MOTOR
   {name:"Zylinderkopf", category:"Motor", oem:"11127806100", desc:"M57 Diesel Zylinderkopf"},
   {name:"Turbolader", category:"Motor", oem:"11657802588", desc:"Abgasturbolader"},
   {name:"Injektor", category:"Kraftstoffsystem", oem:"13537805430", desc:"Common-Rail Injektor"},
   {name:"AGR-Ventil", category:"Abgasanlage", oem:"11717791472", desc:"Abgasrückführventil"},
   {name:"Hochdruckpumpe", category:"Kraftstoffsystem", oem:"13517797862", desc:"Diesel Hochdruckpumpe"},
-  {name:"Wasserpumpe", category:"Kühlsystem", oem:"11517788826", desc:"Kühlmittelpumpe"},
-  {name:"Thermostat", category:"Kühlsystem", oem:"11517805811", desc:"Motorthermostat"},
+  {name:"Glühkerze", category:"Motor", oem:"12232245401", desc:"Diesel Glühkerze"},
+  {name:"Nockenwelle", category:"Motor", oem:"11317805341", desc:"Einlassnockenwelle"},
   {name:"Ölpumpe", category:"Motor", oem:"11417805392", desc:"Motorölpumpe"},
   {name:"Ventildeckel", category:"Motor", oem:"11127805975", desc:"Zylinderkopfhaube"},
+  {name:"Ladeluftkühler", category:"Motor", oem:"17517791472", desc:"Ladeluftkühler"},
+
+  // GETRIEBE
+  {name:"Automatikgetriebe", category:"Getriebe", oem:"24007571217", desc:"ZF Automatikgetriebe"},
+  {name:"Wandler", category:"Getriebe", oem:"24407571212", desc:"Drehmomentwandler"},
+  {name:"Mechatronik", category:"Getriebe", oem:"24347571211", desc:"Getriebesteuerung"},
+  {name:"Getriebeölkühler", category:"Getriebe", oem:"17227560931", desc:"Getriebeölkühler"},
+
+  // ABGASANLAGE
   {name:"DPF", category:"Abgasanlage", oem:"18307795435", desc:"Dieselpartikelfilter"},
   {name:"Katalysator", category:"Abgasanlage", oem:"18307795436", desc:"Oxidationskatalysator"},
-  {name:"Automatikgetriebe", category:"Getriebe", oem:"24007571217", desc:"ZF Automatikgetriebe"},
-  {name:"Mechatronik", category:"Getriebe", oem:"24347571211", desc:"Getriebesteuerung"},
-  {name:"Kardanwelle", category:"Antrieb", oem:"26107570956", desc:"xDrive Kardanwelle"},
-  {name:"Differenzial", category:"Antrieb", oem:"33107570957", desc:"Hinterachsdifferenzial"},
-  {name:"Bremsscheibe VA", category:"Bremsen", oem:"34116864058", desc:"Belüftete Bremsscheibe vorne"},
-  {name:"Bremsscheibe HA", category:"Bremsen", oem:"34216855009", desc:"Bremsscheibe hinten"},
-  {name:"Stoßdämpfer", category:"Fahrwerk", oem:"31316786014", desc:"Vorderachsdämpfer"},
-  {name:"Querlenker", category:"Fahrwerk", oem:"31126769797", desc:"Vorderachse Querlenker"},
+  {name:"Abgasrohr", category:"Abgasanlage", oem:"18307565291", desc:"Abgasrohr vorne"},
+  {name:"Lambdasonde", category:"Abgasanlage", oem:"11787530736", desc:"Lambdasonde"},
+
+  // KÜHLSYSTEM
+  {name:"Wasserpumpe", category:"Kühlsystem", oem:"11517788826", desc:"Kühlmittelpumpe"},
+  {name:"Thermostat", category:"Kühlsystem", oem:"11517805811", desc:"Motorthermostat"},
+  {name:"Kühler", category:"Kühlsystem", oem:"17117788903", desc:"Motorkühler"},
+  {name:"Ausgleichsbehälter", category:"Kühlsystem", oem:"17137787039", desc:"Kühlmittelbehälter"},
+
+  // ELEKTRIK
+  {name:"Generator", category:"Elektrik", oem:"12317799113", desc:"Lichtmaschine"},
+  {name:"Anlasser", category:"Elektrik", oem:"12417798187", desc:"Starter"},
+  {name:"Batterie", category:"Elektrik", oem:"61217586967", desc:"Starterbatterie"},
+  {name:"IBS", category:"Elektrik", oem:"61217605762", desc:"Intelligenter Batteriesensor"},
+
+  // STEUERGERÄTE
   {name:"DDE", category:"Steuergeräte", oem:"12147599811", desc:"Motorsteuergerät"},
   {name:"CAS", category:"Steuergeräte", oem:"61359211873", desc:"Car Access System"},
   {name:"FRM", category:"Steuergeräte", oem:"61359128129", desc:"Fußraummodul"},
-  {name:"Generator", category:"Elektrik", oem:"12317799113", desc:"Lichtmaschine"},
-  {name:"Anlasser", category:"Elektrik", oem:"12417798187", desc:"Starter"},
+  {name:"JBBF", category:"Steuergeräte", oem:"61359133339", desc:"Junction Box Elektronik"},
+
+  // FAHRWERK
+  {name:"Stoßdämpfer", category:"Fahrwerk", oem:"31316786014", desc:"Vorderachsdämpfer"},
+  {name:"Feder", category:"Fahrwerk", oem:"31336760943", desc:"Fahrwerksfeder"},
+  {name:"Querlenker", category:"Fahrwerk", oem:"31126769797", desc:"Vorderachse Querlenker"},
+
+  // BREMSEN
+  {name:"Bremsscheibe VA", category:"Bremsen", oem:"34116864058", desc:"Belüftete Bremsscheibe vorne"},
+  {name:"Bremsscheibe HA", category:"Bremsen", oem:"34216855009", desc:"Bremsscheibe hinten"},
+  {name:"Bremsbelag", category:"Bremsen", oem:"34116864845", desc:"Bremsbeläge Satz vorne"},
+
+  // KAROSSERIE AUSSEN
   {name:"Motorhaube", category:"Karosserie außen", oem:"41617111385", desc:"Motorhaube"},
   {name:"Kotflügel", category:"Karosserie außen", oem:"41357133241", desc:"Kotflügel vorne links"},
-  {name:"Tür vorne links", category:"Karosserie außen", oem:"41517202063", desc:"Vordertür links"},
+  {name:"Stoßstange vorne", category:"Karosserie außen", oem:"51117178013", desc:"Frontstoßstange"},
   {name:"Heckklappe", category:"Karosserie außen", oem:"41627111391", desc:"Heckklappe Touring"},
+
+  // INNENRAUM
+  {name:"Sitz", category:"Innenraum", oem:"52107188367", desc:"Komfortsitz Fahrer"},
+  {name:"Armaturenbrett", category:"Innenraum", oem:"51459173467", desc:"Instrumententafel"},
+  {name:"Lenkrad", category:"Innenraum", oem:"32307848335", desc:"M-Lenkrad"},
+  {name:"Klimabedienteil", category:"Innenraum", oem:"64116923204", desc:"Klimasteuergerät"},
+
+  // BELEUCHTUNG
   {name:"Scheinwerfer", category:"Beleuchtung", oem:"63117181293", desc:"Xenon Scheinwerfer links"},
   {name:"Rücklicht", category:"Beleuchtung", oem:"63217181297", desc:"Rückleuchte rechts"},
-  {name:"Sitz", category:"Innenraum", oem:"52107188367", desc:"Komfortsitz Fahrer"},
-  {name:"Lenkrad", category:"Innenraum", oem:"32307848335", desc:"M-Lenkrad"}
+  {name:"Nebelscheinwerfer", category:"Beleuchtung", oem:"63176924613", desc:"Nebelscheinwerfer"},
+
+  // ANTRIEB
+  {name:"Kardanwelle", category:"Antrieb", oem:"26107570956", desc:"xDrive Kardanwelle"},
+  {name:"Differenzial", category:"Antrieb", oem:"33107570957", desc:"Hinterachsdifferenzial"},
+  {name:"Antriebswelle", category:"Antrieb", oem:"33207567842", desc:"Antriebswelle hinten"}
 ];
 
-let favorites = JSON.parse(localStorage.getItem("favorites")||"[]");
+let favorites = JSON.parse(localStorage.getItem("favorites") || "[]");
 
 function render() {
   let search = document.getElementById("search").value.toLowerCase();
@@ -138,54 +199,64 @@ function render() {
   list.innerHTML = "";
 
   parts.filter(p => 
-    (!cat || p.category===cat) &&
+    (!cat || p.category === cat) &&
     (p.name.toLowerCase().includes(search) || p.oem.includes(search))
-  ).forEach((p,i)=>{
+  ).forEach((p, i) => {
+
     let fav = favorites.includes(p.oem);
+
     let div = document.createElement("div");
-    div.className="part";
+    div.className = "part";
     div.innerHTML = `
       <b>${p.name}</b>
       <small>${p.category}</small>
-      <span class="star" onclick="toggleFav('${p.oem}')">${fav?"★":"☆"}</span>
+      <span class="star" onclick="toggleFav('${p.oem}')">${fav ? "★" : "☆"}</span>
       <div class="details" id="d${i}">
         <b>OEM:</b> ${p.oem}<br>
         <b>Beschreibung:</b> ${p.desc}
       </div>
     `;
-    div.onclick = ()=> {
-      let d = document.getElementById("d"+i);
-      d.style.display = d.style.display==="block"?"none":"block";
-    }
+
+    div.onclick = () => {
+      let d = document.getElementById("d" + i);
+      d.style.display = d.style.display === "block" ? "none" : "block";
+    };
+
     list.appendChild(div);
   });
 }
 
-function toggleFav(oem){
+function toggleFav(oem) {
   event.stopPropagation();
-  if(favorites.includes(oem))
-    favorites = favorites.filter(f=>f!==oem);
+  if (favorites.includes(oem))
+    favorites = favorites.filter(f => f !== oem);
   else favorites.push(oem);
-  localStorage.setItem("favorites",JSON.stringify(favorites));
+
+  localStorage.setItem("favorites", JSON.stringify(favorites));
   render();
 }
 
-function addPart(){
-  let n=document.getElementById("newName").value;
-  let c=document.getElementById("newCategory").value;
-  let o=document.getElementById("newOem").value;
-  let d=document.getElementById("newDesc").value;
-  if(!n||!c||!o||!d) return alert("Alle Felder ausfüllen");
-  parts.push({name:n,category:c,oem:o,desc:d});
-  document.getElementById("newName").value="";
-  document.getElementById("newCategory").value="";
-  document.getElementById("newOem").value="";
-  document.getElementById("newDesc").value="";
+function addPart() {
+  let n = document.getElementById("newName").value;
+  let c = document.getElementById("newCategory").value;
+  let o = document.getElementById("newOem").value;
+  let d = document.getElementById("newDesc").value;
+
+  if (!n || !c || !o || !d) return alert("Alle Felder ausfüllen");
+
+  parts.push({ name: n, category: c, oem: o, desc: d });
+
+  document.getElementById("newName").value = "";
+  document.getElementById("newCategory").value = "";
+  document.getElementById("newOem").value = "";
+  document.getElementById("newDesc").value = "";
+
+  localStorage.setItem("parts", JSON.stringify(parts));
   render();
 }
 
-document.getElementById("search").oninput=render;
-document.getElementById("categoryFilter").onchange=render;
+document.getElementById("search").oninput = render;
+document.getElementById("categoryFilter").onchange = render;
 
 render();
 </script>
