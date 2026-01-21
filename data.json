@@ -14,6 +14,12 @@
           "category": "Motor",
           "oem": "5481FB0027815",
           "desc": "Oilwanne fur bmw e61 525xd 3.0"
+        },
+        {
+          "name": "Gasdruckfeder einlegeboden",
+          "category": "Innenraum",
+          "oem": "51477148826",
+          "desc": "Gasdruckfeder Innenraum für bmw e61"
         }
       ]
     },
