@@ -2,8 +2,8 @@
 <html lang="de">
 <head>
 <meta charset="UTF-8">
-<title>BMW E61 525xd – Teileliste</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BMW E61 525xd – Teileliste</title>
 
 <style>
 body {
@@ -20,89 +20,54 @@ header {
 }
 
 #controls {
-  padding: 10px;
-  text-align: center;
+  padding: 15px;
+  background: #eee;
+  display: flex;
+  gap: 10px;
+  flex-direction: column;
 }
 
-#search {
-  width: 90%;
-  padding: 10px;
-  font-size: 16px;
+#search, #category {
+  padding: 12px;
   border-radius: 8px;
   border: 1px solid #ccc;
-  margin-bottom: 10px;
+  font-size: 16px;
 }
 
-button.sort {
+.container {
+  padding: 15px;
+}
+
+.part {
   background: #3b82f6;
   color: white;
-  border: none;
-  border-radius: 10px;
-  padding: 10px 14px;
-  margin: 5px;
-  font-size: 14px;
-}
-
-#list {
-  padding: 10px;
-}
-
-.item {
-  border-radius: 14px;
-  padding: 14px;
-  margin-bottom: 10px;
+  border-radius: 15px;
+  padding: 15px;
+  margin-bottom: 12px;
   display: flex;
+  justify-content: space-between;
   align-items: center;
-  color: white;
 }
 
-.item.ok { background: #16a34a; }
-.item.warn { background: #f59e0b; }
-.item.bad { background: #dc2626; }
-
-.item-info {
-  flex-grow: 1;
+.part-info {
+  display: flex;
+  flex-direction: column;
 }
 
-.item-title {
-  font-size: 18px;
+.part-name {
+  font-size: 20px;
   font-weight: bold;
 }
 
-.item-sub {
+.part-status {
   font-size: 14px;
   opacity: 0.9;
 }
 
-.buttons {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-
-button.star {
-  background: #facc15;
-  border: none;
-  border-radius: 50%;
-  font-size: 18px;
-  width: 36px;
-  height: 36px;
-}
-
-button.status {
-  background: transparent;
-  border: 2px solid white;
-  border-radius: 10px;
-  color: white;
-  padding: 6px 10px;
-  font-size: 14px;
-}
-
-#panel {
-  background: #fff;
-  margin: 10px;
-  padding: 12px;
-  border-left: 4px solid #3b82f6;
+.star {
+  font-size: 22px;
+  color: gold;
+  cursor: pointer;
 }
 </style>
 </head>
@@ -115,126 +80,105 @@ button.status {
 </header>
 
 <div id="controls">
-  <input id="search" placeholder="Suche nach Name, Gruppe oder OEM…" oninput="renderList()">
-  <br>
-  <button class="sort" onclick="sortBy('name')">Sortieren nach Name</button>
-  <button class="sort" onclick="sortBy('gruppe')">Sortieren nach Gruppe</button>
-  <button class="sort" onclick="sortBy('status')">Sortieren nach Status</button>
+  <input id="search" type="text" placeholder="Teil suchen..." onkeyup="filterParts()">
+
+  <select id="category" onchange="filterParts()">
+    <option value="">Alle Kategorien</option>
+    <option value="Motor">Motor</option>
+    <option value="Turbo">Turbo</option>
+    <option value="Kühlsystem">Kühlsystem</option>
+    <option value="Bremsen">Bremsen</option>
+    <option value="Kraftstoff">Kraftstoff</option>
+    <option value="Antrieb">Antrieb</option>
+    <option value="Karosserie">Karosserie</option>
+    <option value="Elektrik">Elektrik</option>
+  </select>
 </div>
 
-<div id="list"></div>
+<div class="container">
 
-<div id="panel">
-  Tippe auf ein Teil
+  <div class="part" data-name="Zylinderkopf" data-group="Motor">
+    <div class="part-info">
+      <div class="part-name">Zylinderkopf</div>
+      <div class="part-status">Status: undefined</div>
+    </div>
+    <div class="star">☆</div>
+  </div>
+
+  <div class="part" data-name="Turbolader" data-group="Turbo">
+    <div class="part-info">
+      <div class="part-name">Turbolader</div>
+      <div class="part-status">Status: undefined</div>
+    </div>
+    <div class="star">☆</div>
+  </div>
+
+  <div class="part" data-name="Wasserpumpe" data-group="Kühlsystem">
+    <div class="part-info">
+      <div class="part-name">Wasserpumpe</div>
+      <div class="part-status">Status: undefined</div>
+    </div>
+    <div class="star">☆</div>
+  </div>
+
+  <div class="part" data-name="Bremsscheibe VA" data-group="Bremsen">
+    <div class="part-info">
+      <div class="part-name">Bremsscheibe VA</div>
+      <div class="part-status">Status: undefined</div>
+    </div>
+    <div class="star">☆</div>
+  </div>
+
+  <div class="part" data-name="Injektor" data-group="Kraftstoff">
+    <div class="part-info">
+      <div class="part-name">Injektor</div>
+      <div class="part-status">Status: undefined</div>
+    </div>
+    <div class="star">☆</div>
+  </div>
+
+  <div class="part" data-name="Kardanwelle" data-group="Antrieb">
+    <div class="part-info">
+      <div class="part-name">Kardanwelle</div>
+      <div class="part-status">Status: undefined</div>
+    </div>
+    <div class="star">☆</div>
+  </div>
+
+  <div class="part" data-name="Rücklicht" data-group="Karosserie">
+    <div class="part-info">
+      <div class="part-name">Rücklicht</div>
+      <div class="part-status">Status: undefined</div>
+    </div>
+    <div class="star">☆</div>
+  </div>
+
+  <div class="part" data-name="Batterie" data-group="Elektrik">
+    <div class="part-info">
+      <div class="part-name">Batterie</div>
+      <div class="part-status">Status: undefined</div>
+    </div>
+    <div class="star">☆</div>
+  </div>
+
 </div>
 
 <script>
-let teile = [
-  { name:"Zylinderkopf", oem:"11127806100", gruppe:"Motor", beschreibung:"M57 Diesel Zylinderkopf", fav:false, status:"OK" },
-  { name:"Turbolader", oem:"11657802588", gruppe:"Turbo", beschreibung:"Abgasturbolader", fav:false, status:"OK" },
-  { name:"Wasserpumpe", oem:"11517788826", gruppe:"Kühlsystem", beschreibung:"Kühlmittelpumpe", fav:false, status:"OK" },
-  { name:"Bremsscheibe VA", oem:"34116864058", gruppe:"Bremsen", beschreibung:"Belüftete Bremsscheibe vorne", fav:false, status:"OK" },
-  { name:"Injektor", oem:"13537805430", gruppe:"Kraftstoff", beschreibung:"Common-Rail Injektor", fav:false, status:"OK" },
-  { name:"Kardanwelle", oem:"26107570956", gruppe:"Antrieb", beschreibung:"xDrive Kardanwelle", fav:false, status:"OK" },
-  { name:"Rücklicht", oem:"63217160793", gruppe:"Karosserie", beschreibung:"Rückleuchte rechts", fav:false, status:"OK" },
-  { name:"Batterie", oem:"61217586967", gruppe:"Elektrik", beschreibung:"Starterbatterie", fav:false, status:"OK" }
-];
-
-let currentSort = null;
-
-function renderList() {
-  const list = document.getElementById("list");
+function filterParts() {
   const search = document.getElementById("search").value.toLowerCase();
-  list.innerHTML = "";
+  const category = document.getElementById("category").value;
+  const parts = document.querySelectorAll(".part");
 
-  let filtered = teile.filter(t =>
-    t.name.toLowerCase().includes(search) ||
-    t.gruppe.toLowerCase().includes(search) ||
-    t.oem.includes(search)
-  );
+  parts.forEach(part => {
+    const name = part.dataset.name.toLowerCase();
+    const group = part.dataset.group;
 
-  filtered.forEach((t, i) => {
-    const div = document.createElement("div");
-    div.className = "item " + statusClass(t.status);
+    const matchesSearch = name.includes(search);
+    const matchesCategory = category === "" || group === category;
 
-    const info = document.createElement("div");
-    info.className = "item-info";
-    info.innerHTML = `
-      <div class="item-title">${t.name}</div>
-      <div class="item-sub">${t.gruppe}</div>
-    `;
-    info.onclick = () => show(i);
-
-    const buttons = document.createElement("div");
-    buttons.className = "buttons";
-
-    const star = document.createElement("button");
-    star.className = "star";
-    star.innerText = t.fav ? "★" : "☆";
-    star.onclick = (e) => {
-      e.stopPropagation();
-      toggleFav(i);
-    };
-
-    const statusBtn = document.createElement("button");
-    statusBtn.className = "status";
-    statusBtn.innerText = t.status;
-    statusBtn.onclick = (e) => {
-      e.stopPropagation();
-      toggleStatus(i);
-    };
-
-    buttons.appendChild(star);
-    buttons.appendChild(statusBtn);
-
-    div.appendChild(info);
-    div.appendChild(buttons);
-
-    list.appendChild(div);
+    part.style.display = (matchesSearch && matchesCategory) ? "flex" : "none";
   });
 }
-
-function statusClass(status) {
-  if (status === "OK") return "ok";
-  if (status === "WARN") return "warn";
-  if (status === "DEF") return "bad";
-  return "ok";
-}
-
-function show(i) {
-  const t = teile[i];
-  document.getElementById("panel").innerHTML = `
-    <strong>Name:</strong> ${t.name}<br>
-    <strong>OEM:</strong> ${t.oem}<br>
-    <strong>Gruppe:</strong> ${t.gruppe}<br>
-    <strong>Status:</strong> ${t.status}<br>
-    <strong>Beschreibung:</strong> ${t.beschreibung}
-  `;
-}
-
-function toggleFav(i) {
-  teile[i].fav = !teile[i].fav;
-  renderList();
-}
-
-function toggleStatus(i) {
-  const order = ["OK", "WARN", "DEF"];
-  const idx = order.indexOf(teile[i].status);
-  teile[i].status = order[(idx + 1) % order.length];
-  renderList();
-}
-
-function sortBy(key) {
-  currentSort = key;
-  teile.sort((a,b) => {
-    if (a[key] < b[key]) return -1;
-    if (a[key] > b[key]) return 1;
-    return 0;
-  });
-  renderList();
-}
-
-renderList();
 </script>
 
 </body>
