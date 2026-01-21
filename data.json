@@ -19,14 +19,7 @@
     },
     "Test0351": {
       "name": "Test 01",
-      "parts": [
-        {
-          "name": "Test 0503",
-          "category": "Auspuff",
-          "oem": "54773467546tst",
-          "desc": "Test0102"
-        }
-      ]
+      "parts": []
     }
   }
 }
