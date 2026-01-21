@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Teileliste BMW E61</title>
+<title>BMW E61 Teileliste</title>
 
 <style>
 body {
@@ -45,7 +45,6 @@ button {
   padding: 15px;
   margin-bottom: 12px;
   position: relative;
-  cursor: pointer;
 }
 
 .part h3 {
@@ -53,15 +52,16 @@ button {
 }
 
 .part small {
-  opacity: 0.8;
+  opacity: 0.85;
 }
 
 .star {
   position: absolute;
   right: 15px;
-  top: 18px;
-  font-size: 20px;
+  top: 15px;
+  font-size: 18px;
   color: gold;
+  cursor: pointer;
 }
 
 .details {
@@ -81,6 +81,12 @@ button {
   border-radius: 12px;
   padding: 15px;
   margin-bottom: 15px;
+}
+
+.show-btn {
+  margin-top: 8px;
+  background: rgba(255,255,255,0.25);
+  border: 1px solid rgba(255,255,255,0.4);
 }
 </style>
 </head>
@@ -140,12 +146,14 @@ function save() {
 }
 
 function toggleDetails(id) {
-  const el = document.getElementById("details-"+id);
-  el.style.display = el.style.display === "none" ? "block" : "none";
+  const el = document.getElementById("details-" + id);
+  if (!el) return;
+  el.style.display = (el.style.display === "block") ? "none" : "block";
 }
 
 function toggleFav(id) {
   const p = parts.find(x => x.id === id);
+  if (!p) return;
   p.fav = !p.fav;
   save();
   renderParts();
@@ -156,7 +164,11 @@ function addPart() {
   const cat = newCategory.value.trim();
   const oem = newOEM.value.trim();
   const desc = newDesc.value.trim();
-  if(!name || !cat) return alert("Name & Kategorie erforderlich");
+
+  if (!name || !cat) {
+    alert("Name und Kategorie sind erforderlich");
+    return;
+  }
 
   parts.push({
     id: Date.now(),
@@ -184,20 +196,24 @@ function renderParts() {
   partsList.innerHTML = "";
 
   parts
-    .filter(p => 
+    .filter(p =>
       p.name.toLowerCase().includes(search) &&
       (cat === "" || p.category === cat)
     )
     .forEach(p => {
       partsList.innerHTML += `
-        <div class="part" onclick="toggleDetails(${p.id})">
+        <div class="part">
           <h3>${p.name}</h3>
           <small>${p.category}</small><br>
           <small>Status: ${p.status}</small>
 
-          <div class="star" onclick="event.stopPropagation();toggleFav(${p.id})">
+          <div class="star" onclick="toggleFav(${p.id})">
             ${p.fav ? "★" : "☆"}
           </div>
+
+          <button class="show-btn" onclick="toggleDetails(${p.id})">
+            Details anzeigen
+          </button>
 
           <div class="details" id="details-${p.id}">
             <div><b>OEM:</b> ${p.oem || "-"}</div>
