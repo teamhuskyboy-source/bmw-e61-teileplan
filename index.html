@@ -67,6 +67,9 @@ button {
 
 <div class="container">
 
+  <label>VIN</label>
+  <input id="vinInput" placeholder="VIN eingeben">
+
   <input id="search" placeholder="Teil suchen...">
 
   <select id="categoryFilter">
@@ -98,7 +101,7 @@ button {
 </div>
 
 <script>
-let defaultParts = [
+const defaultParts = [
   {name:"Zylinderkopf", category:"Motor", oem:"11127806100", desc:"M57 Diesel Zylinderkopf"},
   {name:"Turbolader", category:"Motor", oem:"11657802588", desc:"Abgasturbolader"},
   {name:"Wasserpumpe", category:"Kühlsystem", oem:"11517788826", desc:"Kühlmittelpumpe"},
@@ -114,23 +117,30 @@ let defaultParts = [
   {name:"Sitz", category:"Innenraum", oem:"52107188367", desc:"Komfortsitz Fahrer"},
   {name:"Getriebe", category:"Getriebe", oem:"24007571213", desc:"6HP Automatikgetriebe"},
   {name:"DME Steuergerät", category:"Steuergeräte", oem:"12147588817", desc:"Motorsteuergerät"},
-  {name:"Kofferraumverkleidung", category:"Innenraum", oem:"51477164741", desc:"Verkleidung Kofferraum"},
   {name:"Stoßstange vorne", category:"Karosserie außen", oem:"51117184735", desc:"Frontstoßstange"},
   {name:"Stoßstange hinten", category:"Karosserie außen", oem:"51127184736", desc:"Heckstoßstange"},
   {name:"Batterie", category:"Elektrik", oem:"61217586967", desc:"Starterbatterie AGM"},
   {name:"Lichtmaschine", category:"Elektrik", oem:"12317802588", desc:"Generator"},
   {name:"Anlasser", category:"Elektrik", oem:"12417802589", desc:"Startermotor"},
   {name:"AGR Ventil", category:"Abgasanlage", oem:"11717804384", desc:"Abgasrückführventil"},
-  {name:"DPF", category:"Abgasanlage", oem:"18307798164", desc:"Dieselpartikelfilter"}
+  {name:"DPF", category:"Abgasanlage", oem:"18307798164", desc:"Dieselpartikelfilter"},
+  {name:"Querlenker", category:"Fahrwerk", oem:"31126769797", desc:"Querlenker vorne"},
+  {name:"Stoßdämpfer", category:"Fahrwerk", oem:"33526771726", desc:"Stoßdämpfer hinten"},
+  {name:"Differential", category:"Antrieb", oem:"33107573287", desc:"Hinterachsdifferential"},
+  {name:"Lenkgetriebe", category:"Fahrwerk", oem:"32106786117", desc:"Servolenkung"},
+  {name:"Klimakompressor", category:"Kühlsystem", oem:"64529165808", desc:"Klimakompressor"}
 ];
 
-let parts = JSON.parse(localStorage.getItem("parts"));
-if (!parts || !parts.length) {
-  parts = defaultParts;
-  localStorage.setItem("parts", JSON.stringify(parts));
-}
+let parts = JSON.parse(localStorage.getItem("parts") || "[]");
 
-// Repariere alte Teile ohne Beschreibung
+// 🔧 Ergänze fehlende Default-Teile
+defaultParts.forEach(dp => {
+  if (!parts.find(p => p.name === dp.name)) {
+    parts.push(dp);
+  }
+});
+
+// 🔧 Repariere alte Teile
 parts = parts.map(p => ({
   name: p.name,
   category: p.category || "Unbekannt",
@@ -140,7 +150,15 @@ parts = parts.map(p => ({
 
 localStorage.setItem("parts", JSON.stringify(parts));
 
+// ⭐ Favoriten
 let favorites = JSON.parse(localStorage.getItem("favorites") || "[]");
+
+// 🚗 VIN
+let vin = localStorage.getItem("vin") || "";
+document.getElementById("vinInput").value = vin;
+document.getElementById("vinInput").oninput = () => {
+  localStorage.setItem("vin", document.getElementById("vinInput").value);
+};
 
 function render() {
   let search = document.getElementById("search").value.toLowerCase();
@@ -203,12 +221,13 @@ function addPart() {
     desc: d || "– nicht hinterlegt –"
   });
 
+  localStorage.setItem("parts", JSON.stringify(parts));
+
   document.getElementById("newName").value = "";
   document.getElementById("newCategory").value = "";
   document.getElementById("newOem").value = "";
   document.getElementById("newDesc").value = "";
 
-  localStorage.setItem("parts", JSON.stringify(parts));
   render();
 }
 
