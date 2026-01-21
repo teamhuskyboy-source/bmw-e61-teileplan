@@ -19,6 +19,18 @@
       text-align: center;
     }
 
+    #controls {
+      padding: 15px;
+      background: #fff;
+    }
+
+    input, select {
+      width: 100%;
+      padding: 10px;
+      margin-bottom: 10px;
+      font-size: 16px;
+    }
+
     #list {
       padding: 15px;
     }
@@ -33,6 +45,7 @@
       background: #3b82f6;
       color: #fff;
       cursor: pointer;
+      text-align: left;
     }
 
     button:hover {
@@ -55,52 +68,72 @@
   <p>Tippe auf ein Teil</p>
 </header>
 
-<div id="list">
-  <button onclick="show('Zylinderkopf','11127806100','Motor','M57 Diesel Zylinderkopf')">
-    Zylinderkopf
-  </button>
+<div id="controls">
+  <input id="search" placeholder="Suche nach Name, OEM, Gruppe..." oninput="render()">
 
-  <button onclick="show('Turbolader','11657802588','Turbo','Abgasturbolader')">
-    Turbolader
-  </button>
-
-  <button onclick="show('Wasserpumpe','11517788826','Kühlsystem','Kühlmittelpumpe')">
-    Wasserpumpe
-  </button>
-
-  <button onclick="show('Bremsscheibe VA','34116864058','Bremsen','Belüftete Bremsscheibe vorne')">
-    Bremsscheibe VA
-  </button>
-
-  <button onclick="show('Injektor','13537805430','Kraftstoff','Common-Rail Injektor')">
-    Injektor
-  </button>
-
-  <button onclick="show('Kardanwelle','26107570956','Antrieb','xDrive Kardanwelle')">
-    Kardanwelle
-  </button>
-
-  <button onclick="show('Rücklicht','63217160793','Karosserie','Rückleuchte rechts')">
-    Rücklicht
-  </button>
-
-  <button onclick="show('Batterie','61217586967','Elektrik','Starterbatterie')">
-    Batterie
-  </button>
+  <select id="groupFilter" onchange="render()">
+    <option value="">Alle Gruppen</option>
+    <option value="Motor">Motor</option>
+    <option value="Turbo">Turbo</option>
+    <option value="Kühlsystem">Kühlsystem</option>
+    <option value="Bremsen">Bremsen</option>
+    <option value="Kraftstoff">Kraftstoff</option>
+    <option value="Antrieb">Antrieb</option>
+    <option value="Karosserie">Karosserie</option>
+    <option value="Elektrik">Elektrik</option>
+  </select>
 </div>
+
+<div id="list"></div>
 
 <div id="panel">
   Tippe auf ein Teil
 </div>
 
 <script>
-function show(n, o, g, d) {
-  document.getElementById("panel").innerHTML =
-    "<strong>Name:</strong> " + n + "<br>" +
-    "<strong>OEM:</strong> " + o + "<br>" +
-    "<strong>Gruppe:</strong> " + g + "<br>" +
-    "<strong>Beschreibung:</strong> " + d;
+const parts = [
+  { n: "Zylinderkopf", o: "11127806100", g: "Motor", d: "M57 Diesel Zylinderkopf" },
+  { n: "Turbolader", o: "11657802588", g: "Turbo", d: "Abgasturbolader" },
+  { n: "Wasserpumpe", o: "11517788826", g: "Kühlsystem", d: "Kühlmittelpumpe" },
+  { n: "Bremsscheibe VA", o: "34116864058", g: "Bremsen", d: "Belüftete Bremsscheibe vorne" },
+  { n: "Injektor", o: "13537805430", g: "Kraftstoff", d: "Common-Rail Injektor" },
+  { n: "Kardanwelle", o: "26107570956", g: "Antrieb", d: "xDrive Kardanwelle" },
+  { n: "Rücklicht", o: "63217160793", g: "Karosserie", d: "Rückleuchte rechts" },
+  { n: "Batterie", o: "61217586967", g: "Elektrik", d: "Starterbatterie" }
+];
+
+function render() {
+  const q = document.getElementById("search").value.toLowerCase();
+  const g = document.getElementById("groupFilter").value;
+
+  const list = document.getElementById("list");
+  list.innerHTML = "";
+
+  parts
+    .filter(p =>
+      (!q ||
+        p.n.toLowerCase().includes(q) ||
+        p.o.includes(q) ||
+        p.g.toLowerCase().includes(q)) &&
+      (!g || p.g === g)
+    )
+    .forEach(p => {
+      const btn = document.createElement("button");
+      btn.textContent = p.n + " (" + p.o + ")";
+      btn.onclick = () => show(p);
+      list.appendChild(btn);
+    });
 }
+
+function show(p) {
+  document.getElementById("panel").innerHTML =
+    "<strong>Name:</strong> " + p.n + "<br>" +
+    "<strong>OEM:</strong> " + p.o + "<br>" +
+    "<strong>Gruppe:</strong> " + p.g + "<br>" +
+    "<strong>Beschreibung:</strong> " + p.d;
+}
+
+render();
 </script>
 
 </body>
