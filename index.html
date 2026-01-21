@@ -1,107 +1,71 @@
 <!DOCTYPE html>
 <html lang="de">
 <head>
-  <meta charset="UTF-8">
-  <title>BMW E61 525xd Teileliste</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta charset="UTF-8">
+<title>BMW E61 525xd – Teileliste</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      margin: 0;
-      background: #f4f4f4;
-    }
+<style>
+body {
+  font-family: Arial, sans-serif;
+  margin: 0;
+  background: #f4f4f4;
+}
 
-    header {
-      background: #111;
-      color: white;
-      padding: 20px;
-      text-align: center;
-    }
+header {
+  background: #111;
+  color: #fff;
+  padding: 20px;
+  text-align: center;
+}
 
-    .controls {
-      padding: 10px;
-      text-align: center;
-      background: #eee;
-    }
+#list {
+  padding: 10px;
+}
 
-    .controls button {
-      margin: 5px;
-      padding: 10px 15px;
-      border: none;
-      border-radius: 6px;
-      background: #3b82f6;
-      color: white;
-      font-size: 14px;
-    }
+.item {
+  background: #3b82f6;
+  color: white;
+  border-radius: 12px;
+  padding: 14px;
+  margin-bottom: 10px;
+  display: flex;
+  align-items: center;
+}
 
-    .list {
-      padding: 10px;
-    }
+.item-info {
+  flex-grow: 1;
+}
 
-    .item {
-      background: #3b82f6;
-      color: white;
-      padding: 12px;
-      border-radius: 10px;
-      margin-bottom: 10px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
+.item-title {
+  font-size: 18px;
+  font-weight: bold;
+}
 
-    .item.ok {
-      background: #16a34a;
-    }
+.item-status {
+  font-size: 14px;
+  opacity: 0.9;
+}
 
-    .item.defekt {
-      background: #dc2626;
-    }
+.buttons {
+  margin-left: auto;
+}
 
-    .item .name {
-      font-size: 16px;
-      font-weight: bold;
-    }
+button.star {
+  background: transparent;
+  color: #facc15;
+  border: none;
+  font-size: 20px;
+  padding: 6px;
+}
 
-    .item .meta {
-      font-size: 13px;
-      opacity: 0.9;
-    }
-
-    .buttons {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-
-    button.star {
-      background: #facc15;
-      color: black;
-      border: none;
-      width: 36px;
-      height: 36px;
-      border-radius: 50%;
-      font-size: 20px;
-      flex-shrink: 0;
-    }
-
-    button.status {
-      background: rgba(255,255,255,0.2);
-      color: white;
-      border: 1px solid white;
-      border-radius: 6px;
-      padding: 6px 10px;
-      font-size: 12px;
-    }
-
-    #panel {
-      background: white;
-      margin: 10px;
-      padding: 10px;
-      border-left: 4px solid #3b82f6;
-      border-radius: 8px;
-    }
-  </style>
+#panel {
+  background: #fff;
+  margin: 10px;
+  padding: 12px;
+  border-left: 4px solid #3b82f6;
+}
+</style>
 </head>
 
 <body>
@@ -111,106 +75,76 @@
   <p>Tippe auf ein Teil</p>
 </header>
 
-<div class="controls">
-  <button onclick="setSort('name')">Sortieren nach Name</button>
-  <button onclick="setSort('gruppe')">Sortieren nach Gruppe</button>
-  <button onclick="setSort('status')">Sortieren nach Status</button>
-</div>
-
-<div class="list" id="list"></div>
+<div id="list"></div>
 
 <div id="panel">
   Tippe auf ein Teil
 </div>
 
 <script>
-  let sortMode = "name";
+const teile = [
+  { name: "Zylinderkopf", oem: "11127806100", gruppe: "Motor", beschreibung: "M57 Diesel Zylinderkopf", fav: false },
+  { name: "Turbolader", oem: "11657802588", gruppe: "Turbo", beschreibung: "Abgasturbolader", fav: false },
+  { name: "Wasserpumpe", oem: "11517788826", gruppe: "Kühlsystem", beschreibung: "Kühlmittelpumpe", fav: false },
+  { name: "Bremsscheibe VA", oem: "34116864058", gruppe: "Bremsen", beschreibung: "Belüftete Bremsscheibe vorne", fav: false },
+  { name: "Injektor", oem: "13537805430", gruppe: "Kraftstoff", beschreibung: "Common-Rail Injektor", fav: false },
+  { name: "Kardanwelle", oem: "26107570956", gruppe: "Antrieb", beschreibung: "xDrive Kardanwelle", fav: false },
+  { name: "Rücklicht", oem: "63217160793", gruppe: "Karosserie", beschreibung: "Rückleuchte rechts", fav: false },
+  { name: "Batterie", oem: "61217586967", gruppe: "Elektrik", beschreibung: "Starterbatterie", fav: false }
+];
 
-  const teile = [
-    { name: "Zylinderkopf", oem: "11127806100", gruppe: "Motor", beschreibung: "M57 Diesel Zylinderkopf", status: "ok", fav: false },
-    { name: "Turbolader", oem: "11657802588", gruppe: "Turbo", beschreibung: "Abgasturbolader", status: "ok", fav: false },
-    { name: "Wasserpumpe", oem: "11517788826", gruppe: "Kühlsystem", beschreibung: "Kühlmittelpumpe", status: "ok", fav: false },
-    { name: "Bremsscheibe VA", oem: "34116864058", gruppe: "Bremsen", beschreibung: "Belüftete Bremsscheibe vorne", status: "ok", fav: false },
-    { name: "Injektor", oem: "13537805430", gruppe: "Kraftstoff", beschreibung: "Common-Rail Injektor", status: "ok", fav: false },
-    { name: "Kardanwelle", oem: "26107570956", gruppe: "Antrieb", beschreibung: "xDrive Kardanwelle", status: "ok", fav: false },
-    { name: "Rücklicht", oem: "63217160793", gruppe: "Karosserie", beschreibung: "Rückleuchte rechts", status: "ok", fav: false },
-    { name: "Batterie", oem: "61217586967", gruppe: "Elektrik", beschreibung: "Starterbatterie", status: "ok", fav: false }
-  ];
+function renderList() {
+  const list = document.getElementById("list");
+  list.innerHTML = "";
 
-  function setSort(mode) {
-    sortMode = mode;
-    renderList();
-  }
+  teile.forEach((t, i) => {
+    const div = document.createElement("div");
+    div.className = "item";
 
-  function toggleFav(i) {
-    teile[i].fav = !teile[i].fav;
-    renderList();
-  }
+    const info = document.createElement("div");
+    info.className = "item-info";
+    info.innerHTML = `
+      <div class="item-title">${t.name}</div>
+      <div class="item-status">Status: undefined</div>
+    `;
+    info.onclick = () => show(i);
 
-  function toggleStatus(i) {
-    teile[i].status = teile[i].status === "ok" ? "defekt" : "ok";
-    renderList();
-  }
+    const buttons = document.createElement("div");
+    buttons.className = "buttons";
 
-  function show(i) {
-    const t = teile[i];
-    document.getElementById("panel").innerHTML =
-      "<strong>Name:</strong> " + t.name + "<br>" +
-      "<strong>OEM:</strong> " + t.oem + "<br>" +
-      "<strong>Gruppe:</strong> " + t.gruppe + "<br>" +
-      "<strong>Status:</strong> " + t.status.toUpperCase() + "<br>" +
-      "<strong>Beschreibung:</strong> " + t.beschreibung;
-  }
+    const star = document.createElement("button");
+    star.className = "star";
+    star.innerText = t.fav ? "★" : "☆";
+    star.onclick = (e) => {
+      e.stopPropagation();
+      toggleFav(i);
+    };
 
-  function renderList() {
-    const list = document.getElementById("list");
-    list.innerHTML = "";
+    buttons.appendChild(star);
 
-    let arr = [...teile];
+    div.appendChild(info);
+    div.appendChild(buttons);
 
-    if (sortMode === "name") arr.sort((a,b) => a.name.localeCompare(b.name));
-    if (sortMode === "gruppe") arr.sort((a,b) => a.gruppe.localeCompare(b.gruppe));
-    if (sortMode === "status") arr.sort((a,b) => a.status.localeCompare(b.status));
+    list.appendChild(div);
+  });
+}
 
-    arr.sort((a,b) => (b.fav === true) - (a.fav === true));
+function show(i) {
+  const t = teile[i];
+  document.getElementById("panel").innerHTML = `
+    <strong>Name:</strong> ${t.name}<br>
+    <strong>OEM:</strong> ${t.oem}<br>
+    <strong>Gruppe:</strong> ${t.gruppe}<br>
+    <strong>Beschreibung:</strong> ${t.beschreibung}
+  `;
+}
 
-    arr.forEach(t => {
-      const i = teile.indexOf(t);
-
-      const div = document.createElement("div");
-      div.className = "item " + t.status;
-
-      const info = document.createElement("div");
-      info.innerHTML =
-        "<div class='name'>" + t.name + "</div>" +
-        "<div class='meta'>" + t.gruppe + "</div>";
-
-      info.onclick = () => show(i);
-
-      const buttons = document.createElement("div");
-      buttons.className = "buttons";
-
-      const star = document.createElement("button");
-      star.className = "star";
-      star.innerText = t.fav ? "★" : "☆";
-      star.onclick = () => toggleFav(i);
-
-      const statusBtn = document.createElement("button");
-      statusBtn.className = "status";
-      statusBtn.innerText = t.status === "ok" ? "OK" : "Defekt";
-      statusBtn.onclick = () => toggleStatus(i);
-
-      buttons.appendChild(star);
-      buttons.appendChild(statusBtn);
-
-      div.appendChild(info);
-      div.appendChild(buttons);
-
-      list.appendChild(div);
-    });
-  }
-
+function toggleFav(i) {
+  teile[i].fav = !teile[i].fav;
   renderList();
+}
+
+renderList();
 </script>
 
 </body>
