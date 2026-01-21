@@ -3,310 +3,255 @@
 <head>
   <meta charset="UTF-8">
   <title>BMW Teileliste</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
+  <meta name="viewport" content="width=device-width, initial-scale=1">
   <style>
-    body {
-      font-family: Arial, sans-serif;
-      background: #f2f2f2;
-      margin: 0;
-      padding: 0;
+    body { font-family: Arial, sans-serif; background:#f2f2f2; margin:0; }
+    header { background:#111; color:#fff; padding:20px; text-align:center; }
+    .container { padding:15px; max-width:900px; margin:auto; }
+
+    input, select, textarea, button {
+      width:100%; padding:10px; margin:6px 0; border-radius:8px; border:1px solid #ccc;
+      font-size:16px;
     }
 
-    header {
-      background: #111;
-      color: white;
-      padding: 20px;
-      text-align: center;
+    button { background:#3b82f6; color:white; border:none; }
+    button:hover { background:#2563eb; }
+
+    .card {
+      background:#3b82f6; color:white; border-radius:14px;
+      padding:14px; margin:10px 0; display:flex; justify-content:space-between; align-items:center;
     }
 
-    .container {
-      max-width: 600px;
-      margin: auto;
-      padding: 15px;
+    .card .info { flex:1; }
+    .card .info b { font-size:18px; display:block; }
+    .card .info small { opacity:0.9; }
+
+    .actions {
+      display:flex; gap:10px;
     }
 
-    input, select, button {
-      width: 100%;
-      padding: 12px;
-      margin: 8px 0;
-      border-radius: 8px;
-      border: 1px solid #ccc;
-      font-size: 16px;
+    .btn-del {
+      background:#dc2626; border:none; border-radius:10px; width:46px; height:46px;
+      color:white; font-size:22px;
     }
 
-    button {
-      background: #3b82f6;
-      color: white;
-      border: none;
-      cursor: pointer;
+    .detail {
+      background:#fff; border-left:4px solid #3b82f6;
+      padding:12px; margin:8px 0; border-radius:8px;
     }
 
-    .part-card {
-      background: #3b82f6;
-      color: white;
-      padding: 15px;
-      border-radius: 14px;
-      margin-bottom: 10px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      position: relative;
+    .hidden { display:none; }
+
+    .vehicle-box {
+      background:#000; color:white; padding:15px; border-radius:12px; margin-bottom:12px;
     }
 
-    .part-info {
-      cursor: pointer;
-      width: 100%;
+    .vehicle-box input {
+      background:#fff; color:black;
     }
 
-    .part-name {
-      font-weight: bold;
-      font-size: 18px;
-    }
-
-    .part-cat {
-      font-size: 14px;
-      opacity: 0.9;
-    }
-
-    .delete-btn {
-      background: #e11d48;
-      color: white;
-      border: none;
-      border-radius: 10px;
-      width: 45px;
-      height: 45px;
-      font-size: 22px;
-      margin-left: 10px;
-    }
-
-    .details {
-      background: white;
-      color: black;
-      padding: 12px;
-      border-radius: 10px;
-      margin-top: 8px;
-      display: none;
-    }
-
-    .section-title {
-      margin-top: 20px;
-      font-weight: bold;
-      font-size: 18px;
-    }
   </style>
 </head>
-
 <body>
 
 <header>
-  <h1>BMW Teileliste</h1>
-  <p>Suche, filtere oder füge neue Teile hinzu</p>
+  <h2>BMW Teileliste</h2>
 </header>
 
 <div class="container">
 
-  <!-- VIN Verwaltung -->
-  <div class="section-title">Fahrzeug hinzufügen</div>
+  <div class="vehicle-box">
+    <select id="vehicleSelect"></select>
+    <input id="vinInput" placeholder="FIN eingeben">
+    <input id="vehicleNameInput" placeholder="Anzeigename (z. B. E61 Daily)">
+    <button onclick="addVehicle()">Fahrzeug hinzufügen</button>
+  </div>
 
-  <input id="vinInput" placeholder="FIN (z. B. WBAPY51000CX14466)">
-  <input id="vinNameInput" placeholder="Anzeigename (z. B. E61 Daily)">
-  <button onclick="addVehicle()">Fahrzeug hinzufügen</button>
-
-  <select id="vehicleSelect" onchange="loadVehicle()">
-    <option value="">Fahrzeug auswählen</option>
-  </select>
-
-  <!-- Suche + Kategorie -->
   <input id="searchInput" placeholder="Teil suchen..." oninput="renderParts()">
 
   <select id="categoryFilter" onchange="renderParts()">
     <option value="">Alle Kategorien</option>
   </select>
 
-  <!-- Teil hinzufügen -->
-  <div class="section-title">Teil hinzufügen</div>
-
+  <h3>Teil hinzufügen</h3>
   <input id="partName" placeholder="Teilname">
   <input id="partCategory" placeholder="Kategorie">
-  <input id="partOEM" placeholder="OEM Nummer">
-  <input id="partDesc" placeholder="Beschreibung">
+  <input id="partOem" placeholder="OEM Nummer">
+  <textarea id="partDesc" placeholder="Beschreibung"></textarea>
   <button onclick="addPart()">Hinzufügen</button>
 
-  <!-- Teileliste -->
   <div id="partsList"></div>
+
+  <div id="detailBox" class="detail hidden"></div>
 
 </div>
 
 <script>
-  let data = {
-    vehicles: {}
+const REPO_OWNER = "teamhuskyboy-source";
+const REPO_NAME = "bmw-e61-teileplan";
+const FILE_PATH = "data.json";
+const BRANCH = "main";
+const GITHUB_TOKEN = "DEIN_TOKEN_HIER";
+
+let data = { vehicles: {} };
+let currentVin = "";
+
+async function loadData() {
+  try {
+    const res = await fetch(`https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/contents/${FILE_PATH}`);
+    const json = await res.json();
+    const content = atob(json.content);
+    data = JSON.parse(content);
+  } catch {
+    data = { vehicles: {} };
+  }
+
+  renderVehicles();
+}
+
+function renderVehicles() {
+  const sel = document.getElementById("vehicleSelect");
+  sel.innerHTML = "";
+
+  Object.keys(data.vehicles).forEach(vin => {
+    const opt = document.createElement("option");
+    opt.value = vin;
+    opt.textContent = `${data.vehicles[vin].name} (${vin})`;
+    sel.appendChild(opt);
+  });
+
+  if (!currentVin && sel.options.length) {
+    currentVin = sel.options[0].value;
+  }
+
+  sel.value = currentVin;
+  renderParts();
+}
+
+async function saveData() {
+  const res = await fetch(`https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/contents/${FILE_PATH}`);
+  const json = await res.json();
+
+  await fetch(`https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/contents/${FILE_PATH}`, {
+    method: "PUT",
+    headers: {
+      "Authorization": "token " + GITHUB_TOKEN,
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({
+      message: "Update vehicle data",
+      content: btoa(JSON.stringify(data, null, 2)),
+      sha: json.sha,
+      branch: BRANCH
+    })
+  });
+}
+
+function addVehicle() {
+  const vin = vinInput.value.trim();
+  const name = vehicleNameInput.value.trim();
+
+  if (!vin) return alert("FIN fehlt");
+
+  if (!data.vehicles[vin]) {
+    data.vehicles[vin] = { name: name || vin, parts: [] };
+  }
+
+  currentVin = vin;
+  vinInput.value = "";
+  vehicleNameInput.value = "";
+
+  saveData();
+  renderVehicles();
+}
+
+function addPart() {
+  if (!currentVin) return alert("Kein Fahrzeug ausgewählt");
+
+  const part = {
+    name: partName.value,
+    category: partCategory.value,
+    oem: partOem.value,
+    desc: partDesc.value
   };
 
-  let currentVIN = null;
+  data.vehicles[currentVin].parts.push(part);
 
-  function saveData() {
-    localStorage.setItem("bmwData", JSON.stringify(data));
-  }
+  partName.value = partCategory.value = partOem.value = partDesc.value = "";
 
-  function loadData() {
-    const stored = localStorage.getItem("bmwData");
-    if (stored) {
-      data = JSON.parse(stored);
-    }
-    renderVehicleSelect();
-  }
+  saveData();
+  renderParts();
+}
 
-  function addVehicle() {
-    const vin = vinInput.value.trim();
-    const name = vinNameInput.value.trim();
+function renderParts() {
+  const list = document.getElementById("partsList");
+  list.innerHTML = "";
 
-    if (!vin) {
-      alert("Bitte FIN eingeben");
-      return;
-    }
+  if (!currentVin) return;
 
-    if (!data.vehicles[vin]) {
-      data.vehicles[vin] = {
-        name: name || vin,
-        parts: []
-      };
-      saveData();
-      renderVehicleSelect();
-    }
+  const search = searchInput.value.toLowerCase();
+  const cat = categoryFilter.value;
 
-    vinInput.value = "";
-    vinNameInput.value = "";
-  }
+  const parts = data.vehicles[currentVin].parts.filter(p => {
+    return (!search || p.name.toLowerCase().includes(search)) &&
+           (!cat || p.category === cat);
+  });
 
-  function renderVehicleSelect() {
-    vehicleSelect.innerHTML = `<option value="">Fahrzeug auswählen</option>`;
-    for (let vin in data.vehicles) {
-      const opt = document.createElement("option");
-      opt.value = vin;
-      opt.textContent = data.vehicles[vin].name + " (" + vin + ")";
-      vehicleSelect.appendChild(opt);
-    }
-  }
+  parts.forEach((p, i) => {
+    const div = document.createElement("div");
+    div.className = "card";
+    div.onclick = () => showDetail(p);
 
-  function loadVehicle() {
-    currentVIN = vehicleSelect.value;
-    renderParts();
-  }
+    div.innerHTML = `
+      <div class="info">
+        <b>${p.name}</b>
+        <small>${p.category}</small>
+      </div>
+      <div class="actions">
+        <button class="btn-del" onclick="event.stopPropagation(); deletePart(${i})">✖</button>
+      </div>
+    `;
 
-  function addPart() {
-    if (!currentVIN) {
-      alert("Bitte zuerst ein Fahrzeug auswählen");
-      return;
-    }
+    list.appendChild(div);
+  });
 
-    const name = partName.value.trim();
-    const category = partCategory.value.trim();
-    const oem = partOEM.value.trim();
-    const desc = partDesc.value.trim();
+  renderCategories();
+}
 
-    if (!name) {
-      alert("Teilname fehlt");
-      return;
-    }
+function renderCategories() {
+  const sel = document.getElementById("categoryFilter");
+  const cats = new Set();
 
-    const parts = data.vehicles[currentVIN].parts;
+  data.vehicles[currentVin]?.parts.forEach(p => cats.add(p.category));
 
-    if (parts.some(p => p.name.toLowerCase() === name.toLowerCase())) {
-      alert("Teil existiert bereits");
-      return;
-    }
+  sel.innerHTML = `<option value="">Alle Kategorien</option>`;
+  [...cats].forEach(c => {
+    const opt = document.createElement("option");
+    opt.value = c;
+    opt.textContent = c;
+    sel.appendChild(opt);
+  });
+}
 
-    parts.push({
-      name,
-      category,
-      oem,
-      desc
-    });
+function showDetail(p) {
+  const box = document.getElementById("detailBox");
+  box.classList.remove("hidden");
+  box.innerHTML = `
+    <b>${p.name}</b><br>
+    Kategorie: ${p.category}<br>
+    OEM: ${p.oem || "-"}<br>
+    Beschreibung: ${p.desc || "-"}
+  `;
+}
 
-    saveData();
-    partName.value = "";
-    partCategory.value = "";
-    partOEM.value = "";
-    partDesc.value = "";
-    renderParts();
-  }
+function deletePart(i) {
+  if (!confirm("Teil löschen?")) return;
+  data.vehicles[currentVin].parts.splice(i, 1);
+  saveData();
+  renderParts();
+}
 
-  function deletePart(index) {
-    if (!currentVIN) return;
-
-    if (!confirm("Teil wirklich löschen?")) return;
-
-    data.vehicles[currentVIN].parts.splice(index, 1);
-    saveData();
-    renderParts();
-  }
-
-  function renderParts() {
-    partsList.innerHTML = "";
-    categoryFilter.innerHTML = `<option value="">Alle Kategorien</option>`;
-
-    if (!currentVIN) return;
-
-    const parts = data.vehicles[currentVIN].parts;
-    const search = searchInput.value.toLowerCase();
-    const filterCat = categoryFilter.value;
-
-    const categories = [...new Set(parts.map(p => p.category).filter(Boolean))];
-    categories.forEach(cat => {
-      const opt = document.createElement("option");
-      opt.value = cat;
-      opt.textContent = cat;
-      categoryFilter.appendChild(opt);
-    });
-
-    parts.forEach((part, index) => {
-      if (
-        (search && !part.name.toLowerCase().includes(search)) ||
-        (filterCat && part.category !== filterCat)
-      ) return;
-
-      const card = document.createElement("div");
-      card.className = "part-card";
-
-      const info = document.createElement("div");
-      info.className = "part-info";
-      info.onclick = () => toggleDetails(index);
-
-      info.innerHTML = `
-        <div class="part-name">${part.name}</div>
-        <div class="part-cat">${part.category || ""}</div>
-      `;
-
-      const del = document.createElement("button");
-      del.className = "delete-btn";
-      del.textContent = "✖";
-      del.onclick = (e) => {
-        e.stopPropagation();
-        deletePart(index);
-      };
-
-      const details = document.createElement("div");
-      details.className = "details";
-      details.id = "details-" + index;
-      details.innerHTML = `
-        <b>OEM:</b> ${part.oem || "-"}<br>
-        <b>Beschreibung:</b> ${part.desc || "-"}
-      `;
-
-      card.appendChild(info);
-      card.appendChild(del);
-      card.appendChild(details);
-      partsList.appendChild(card);
-    });
-  }
-
-  function toggleDetails(index) {
-    const el = document.getElementById("details-" + index);
-    el.style.display = el.style.display === "block" ? "none" : "block";
-  }
-
-  loadData();
+loadData();
 </script>
 
 </body>
