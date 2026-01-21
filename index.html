@@ -45,33 +45,30 @@ button.secondary {
   background: #888;
 }
 
-.part {
+.part-row {
+  display: flex;
+  gap: 10px;
+  align-items: stretch;
+  margin: 10px 0;
+}
+
+.part-card {
+  flex: 1;
   background: #3b82f6;
   color: white;
   border-radius: 15px;
   padding: 15px;
-  margin: 10px 0;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
 }
 
-.part-text {
-  flex: 1;
-}
-
-.part-text small {
+.part-card small {
   opacity: 0.85;
 }
 
 .delete-btn {
-  font-size: 18px;
+  width: 50px;
   background: #e11d48;
-  border: none;
-  border-radius: 8px;
-  padding: 8px 10px;
-  color: white;
-  cursor: pointer;
+  border-radius: 12px;
+  font-size: 20px;
 }
 
 .panel {
@@ -88,7 +85,7 @@ button.secondary {
 
 <header>
   <h1>Teileliste BMW E61</h1>
-  <p>Tippen = Infos • ❌ = Löschen</p>
+  <p>Tippen auf Teil = Infos • ❌ = Löschen</p>
 </header>
 
 <div class="container">
@@ -235,18 +232,18 @@ function renderParts() {
       (category && p.category !== category)
     ) return;
 
-    const div = document.createElement("div");
-    div.className = "part";
+    const row = document.createElement("div");
+    row.className = "part-row";
 
-    div.innerHTML = `
-      <div class="part-text" onclick="showInfo(${i})">
+    row.innerHTML = `
+      <div class="part-card" onclick="showInfo(${i})">
         <strong>${p.name}</strong><br>
         <small>${p.category}</small>
       </div>
       <button class="delete-btn" onclick="deletePart(${i})">❌</button>
     `;
 
-    partsList.appendChild(div);
+    partsList.appendChild(row);
   });
 }
 
