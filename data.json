@@ -10,10 +10,21 @@
           "desc": "Zylinderkopf bmw e61 530d 235ps"
         },
         {
-          "name": "Ölwanne",
+          "name": "Ã–lwanne",
           "category": "Motor",
           "oem": "5481FB0027815",
-          "desc": "Ölwanne für bmw e61 525xd 3.0 M57"
+          "desc": "Ã–lwanne fÃ¼r bmw e61 525xd 3.0 M57"
+        }
+      ]
+    },
+    "Test0351": {
+      "name": "Test 01",
+      "parts": [
+        {
+          "name": "Test 0503",
+          "category": "Auspuff",
+          "oem": "54773467546tst",
+          "desc": "Test0102"
         }
       ]
     }
