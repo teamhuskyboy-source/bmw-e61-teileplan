@@ -4,6 +4,7 @@
   <meta charset="UTF-8">
   <title>BMW E61 525xd Teileliste</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
   <style>
     body {
       font-family: Arial, sans-serif;
@@ -14,83 +15,92 @@
     header {
       background: #111;
       color: #fff;
-      padding: 15px;
+      padding: 20px;
       text-align: center;
     }
 
-    ul {
-      list-style: none;
-      padding: 0;
-      margin: 10px;
+    #list {
+      padding: 15px;
     }
 
-    li {
-      background: #fff;
-      margin-bottom: 10px;
+    button {
+      width: 100%;
       padding: 12px;
-      border-left: 5px solid #3b82f6;
+      margin-bottom: 10px;
+      font-size: 16px;
+      border: none;
+      border-radius: 6px;
+      background: #3b82f6;
+      color: #fff;
       cursor: pointer;
     }
 
-    li:hover {
-      background: #eef4ff;
+    button:hover {
+      background: #2563eb;
     }
 
     #panel {
       background: #fff;
-      margin: 10px;
+      margin: 15px;
       padding: 15px;
-      border-left: 5px solid #3b82f6;
-      min-height: 80px;
+      border-left: 4px solid #3b82f6;
     }
   </style>
 </head>
+
 <body>
 
 <header>
-  <h1>BMW E61 525xd Teileplan</h1>
+  <h1>BMW E61 525xd Teileliste</h1>
   <p>Tippe auf ein Teil</p>
 </header>
 
-<ul>
-  <li onclick="show('Zylinderkopf','11127806100','Motor','M57 Diesel Zylinderkopf')">
+<div id="list">
+  <button onclick="show('Zylinderkopf','11127806100','Motor','M57 Diesel Zylinderkopf')">
     Zylinderkopf
-  </li>
-  <li onclick="show('Turbolader','11657802588','Turbo','Abgasturbolader')">
+  </button>
+
+  <button onclick="show('Turbolader','11657802588','Turbo','Abgasturbolader')">
     Turbolader
-  </li>
-  <li onclick="show('Wasserpumpe','11517788826','Kühlsystem','Kühlmittelpumpe')">
+  </button>
+
+  <button onclick="show('Wasserpumpe','11517788826','Kühlsystem','Kühlmittelpumpe')">
     Wasserpumpe
-  </li>
-  <li onclick="show('Bremsscheibe VA','34116864058','Bremsen','Belüftete Bremsscheibe vorne')">
+  </button>
+
+  <button onclick="show('Bremsscheibe VA','34116864058','Bremsen','Belüftete Bremsscheibe vorne')">
     Bremsscheibe VA
-  </li>
-  <li onclick="show('Injektor','13537805430','Kraftstoff','Common-Rail Injektor')">
+  </button>
+
+  <button onclick="show('Injektor','13537805430','Kraftstoff','Common-Rail Injektor')">
     Injektor
-  </li>
-  <li onclick="show('Kardanwelle','26107570956','Antrieb','xDrive Kardanwelle')">
+  </button>
+
+  <button onclick="show('Kardanwelle','26107570956','Antrieb','xDrive Kardanwelle')">
     Kardanwelle
-  </li>
-  <li onclick="show('Rücklicht','63217160793','Karosserie','Rückleuchte rechts')">
+  </button>
+
+  <button onclick="show('Rücklicht','63217160793','Karosserie','Rückleuchte rechts')">
     Rücklicht
-  </li>
-  <li onclick="show('Batterie','61217586967','Elektrik','Starterbatterie')">
+  </button>
+
+  <button onclick="show('Batterie','61217586967','Elektrik','Starterbatterie')">
     Batterie
-  </li>
-</ul>
+  </button>
+</div>
 
 <div id="panel">
   Tippe auf ein Teil
 </div>
 
 <script>
-  function show(n, o, g, d) {
-    document.getElementById("panel").innerHTML =
-      "<strong>Name:</strong> " + n + "<br>" +
-      "<strong>OEM:</strong> " + o + "<br>" +
-      "<strong>Gruppe:</strong> " + g + "<br>" +
-      "<strong>Beschreibung:</strong> " + d;
-  }
+function show(n, o, g, d) {
+  document.getElementById("panel").innerHTML =
+    "<strong>Name:</strong> " + n + "<br>" +
+    "<strong>OEM:</strong> " + o + "<br>" +
+    "<strong>Gruppe:</strong> " + g + "<br>" +
+    "<strong>Beschreibung:</strong> " + d;
+}
 </script>
 
 </body>
