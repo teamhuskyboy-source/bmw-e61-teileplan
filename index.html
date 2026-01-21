@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<title>BMW E61 525xd Teileplan</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<style>
+body { font-family: Arial, sans-serif; margin:0; background:#f4f4f4; }
+header { background:#111; color:#fff; padding:15px; text-align:center; }
+#container { position:relative; max-width:900px; margin:0 auto; }
+#car { width:100%; display:block; }
+.hotspot {
+  position:absolute;
+  width:18px;
+  height:18px;
+  background:red;
+  border-radius:50%;
+  opacity:0.85;
+  border:2px solid #fff;
+}
+#panel {
+  background:#fff;
+  margin:10px;
+  padding:10px;
+  border-left:4px solid #3b82f6;
+}
+</style>
+</head>
+<body>
+
+<header>
+<h1>BMW E61 525xd Teileplan</h1>
+<p>Tippe auf einen roten Punkt</p>
+</header>
+
+<div id="container">
+<img id="car" src="https://upload.wikimedia.org/wikipedia/commons/3/3e/BMW_5er_Touring_E61_front_20080309.jpg">
+
+<div class="hotspot" style="top:40%;left:45%;" onclick="show('Zylinderkopf','11127806100','Motor','M57 Diesel Zylinderkopf')"></div>
+<div class="hotspot" style="top:42%;left:52%;" onclick="show('Turbolader','11657802588','Turbo','Abgasturbolader')"></div>
+<div class="hotspot" style="top:55%;left:48%;" onclick="show('Wasserpumpe','11517788826','Kühlsystem','Kühlmittelpumpe')"></div>
+<div class="hotspot" style="top:65%;left:30%;" onclick="show('Bremsscheibe VA','34116864058','Bremsen','Belüftete Bremsscheibe vorne')"></div>
+<div class="hotspot" style="top:38%;left:58%;" onclick="show('Injektor','13537805430','Kraftstoff','Common-Rail Injektor')"></div>
+<div class="hotspot" style="top:70%;left:55%;" onclick="show('Kardanwelle','26107570956','Antrieb','xDrive Kardanwelle')"></div>
+<div class="hotspot" style="top:30%;left:80%;" onclick="show('Rücklicht','63217160793','Karosserie','Rückleuchte rechts')"></div>
+<div class="hotspot" style="top:25%;left:20%;" onclick="show('Batterie','61217586967','Elektrik','Starterbatterie')"></div>
+</div>
+
+<div id="panel">
+Tippe auf einen roten Punkt
+</div>
+
+<script>
+function show(n,o,g,d) {
+  document.getElementById("panel").innerHTML =
+    "<strong>Name:</strong> " + n + "<br>" +
+    "<strong>OEM:</strong> " + o + "<br>" +
+    "<strong>Gruppe:</strong> " + g + "<br>" +
+    "<strong>Beschreibung:</strong> " + d;
+}
+</script>
+
+</body>
+</html>
