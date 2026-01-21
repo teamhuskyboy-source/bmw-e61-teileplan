@@ -2,7 +2,14 @@
   "vehicles": {
     "WBAPY51000CX14466": {
       "name": "BMW e61 525xd blau",
-      "parts": []
+      "parts": [
+        {
+          "name": "Zylinderkopf",
+          "category": "Motor",
+          "oem": "8056138789210",
+          "desc": "Zylinderkopf bmw e61 530d 235ps"
+        }
+      ]
     }
   }
 }
