@@ -1,313 +1,290 @@
 <!DOCTYPE html>
 <html lang="de">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>BMW E61 525xd – Teileliste</title>
+  <meta charset="UTF-8">
+  <title>BMW E61 Teileliste</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<style>
-body { font-family: Arial, sans-serif; margin:0; background:#f2f2f2; }
-header { background:#111; color:#fff; padding:20px; text-align:center; }
-.container { padding:15px; }
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif;
+      background: #f2f2f7;
+      margin: 0;
+    }
 
-input, select, textarea, button {
-  width:100%;
-  padding:10px;
-  margin:5px 0;
-  border-radius:8px;
-  border:1px solid #ccc;
-  font-size:16px;
-}
+    header {
+      background: #111;
+      color: white;
+      padding: 20px;
+      text-align: center;
+    }
 
-textarea { min-height:100px; }
+    .container {
+      padding: 15px;
+      max-width: 700px;
+      margin: auto;
+    }
 
-button { background:#3b82f6; color:#fff; border:none; }
+    input, select, textarea, button {
+      width: 100%;
+      padding: 12px;
+      margin: 8px 0;
+      border-radius: 10px;
+      border: 1px solid #ccc;
+      font-size: 16px;
+      box-sizing: border-box;
+    }
 
-.part {
-  background:#3b82f6;
-  color:#fff;
-  padding:15px;
-  border-radius:14px;
-  margin-bottom:10px;
-  position:relative;
-}
+    button {
+      background: #3b82f6;
+      color: white;
+      border: none;
+      font-weight: 600;
+    }
 
-.part small { display:block; opacity:.9; }
+    button.secondary {
+      background: #6b7280;
+    }
 
-.star {
-  position:absolute;
-  right:15px;
-  top:15px;
-  font-size:18px;
-  color:#facc15;
-  cursor:pointer;
-}
+    .part {
+      background: #3b82f6;
+      color: white;
+      padding: 14px;
+      border-radius: 14px;
+      margin-bottom: 12px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
 
-.details {
-  background:#fff;
-  color:#000;
-  padding:12px;
-  border-left:5px solid #3b82f6;
-  border-radius:10px;
-  margin-top:10px;
-  display:none;
-}
-</style>
+    .part h3 {
+      margin: 0;
+      font-size: 18px;
+    }
+
+    .part small {
+      opacity: 0.9;
+      display: block;
+    }
+
+    .star {
+      font-size: 18px;
+      color: gold;
+      cursor: pointer;
+      margin-right: 10px;
+    }
+
+    .info-box {
+      background: white;
+      border-left: 5px solid #3b82f6;
+      padding: 12px;
+      border-radius: 10px;
+      margin-top: 10px;
+    }
+
+    .hidden {
+      display: none;
+    }
+
+    .row {
+      display: flex;
+      gap: 10px;
+    }
+
+    .row > * {
+      flex: 1;
+    }
+  </style>
 </head>
-
 <body>
 
 <header>
-  <h1>BMW E61 525xd – Teileliste</h1>
-  <p>FIN: WBAPY51000CX14466</p>
+  <h1>BMW E61 Teileliste</h1>
+  <p>Suche, filtere oder füge neue Teile hinzu</p>
 </header>
 
 <div class="container">
 
   <!-- VIN -->
-  <label>VIN</label>
-  <input id="vinInput" placeholder="VIN eingeben">
+  <input id="vinInput" placeholder="FIN / VIN eingeben">
+  <button onclick="saveVIN()">VIN speichern</button>
 
-  <!-- Suche & Filter -->
-  <input id="search" placeholder="Teil suchen...">
+  <!-- Suche -->
+  <input id="searchInput" placeholder="Teil suchen..." oninput="renderParts()">
 
-  <select id="categoryFilter">
-    <option value="">Alle Kategorien</option>
-    <option>Motor</option>
-    <option>Kraftstoffsystem</option>
-    <option>Abgasanlage</option>
-    <option>Kühlsystem</option>
-    <option>Getriebe</option>
-    <option>Antrieb</option>
-    <option>Fahrwerk</option>
-    <option>Bremsen</option>
-    <option>Lenkung</option>
-    <option>Elektrik</option>
-    <option>Steuergeräte</option>
-    <option>Beleuchtung</option>
-    <option>Karosserie außen</option>
-    <option>Karosserie innen</option>
-    <option>Innenraum</option>
-    <option>Klima</option>
-    <option>Komfort</option>
-    <option>Sicherheit</option>
-    <option>Sensorik</option>
-    <option>Leitungen / Schläuche</option>
+  <!-- Kategorie -->
+  <select id="categoryFilter" onchange="renderParts()">
+    <option value="Alle">Alle Kategorien</option>
   </select>
 
   <!-- OEM Import -->
   <h3>OEM-Nummern per FIN importieren</h3>
-  <textarea id="oemData" placeholder="Format:
+  <textarea id="oemImport" rows="4" placeholder="Format:
 Zylinderkopf;11127806100
-Turbolader;11657802588
-Injektor;13537805430"></textarea>
-  <button onclick="importOEM()">OEMs importieren</button>
+Turbolader;11657802588"></textarea>
+  <button onclick="importOEMs()">OEMs importieren</button>
 
   <!-- Teil hinzufügen -->
   <h3>Teil hinzufügen</h3>
   <input id="newName" placeholder="Teilname">
   <input id="newCategory" placeholder="Kategorie">
-  <input id="newOem" placeholder="OEM Nummer">
-  <input id="newDesc" placeholder="Beschreibung">
+  <input id="newOEM" placeholder="OEM Nummer">
+  <textarea id="newDesc" placeholder="Beschreibung"></textarea>
   <button onclick="addPart()">Hinzufügen</button>
 
-  <div id="list"></div>
+  <!-- Liste -->
+  <div id="partsList"></div>
 
 </div>
 
 <script>
-const defaultParts = [
+let vin = localStorage.getItem("vin") || "";
+document.getElementById("vinInput").value = vin;
 
-{name:"Motorblock",category:"Motor",oem:"00000000000",desc:"Motorblock M57N2"},
-{name:"Zylinderkopf",category:"Motor",oem:"00000000000",desc:"Zylinderkopf"},
-{name:"Kurbelwelle",category:"Motor",oem:"00000000000",desc:"Kurbelwelle"},
-{name:"Nockenwelle",category:"Motor",oem:"00000000000",desc:"Nockenwelle"},
-{name:"Ventildeckel",category:"Motor",oem:"00000000000",desc:"Ventildeckel"},
-{name:"Turbolader",category:"Motor",oem:"00000000000",desc:"Abgasturbolader"},
-{name:"AGR-Ventil",category:"Motor",oem:"00000000000",desc:"Abgasrückführventil"},
-{name:"Ladeluftkühler",category:"Motor",oem:"00000000000",desc:"Ladeluftkühler"},
-{name:"Ansaugbrücke",category:"Motor",oem:"00000000000",desc:"Ansaugbrücke"},
-{name:"Drosselklappe",category:"Motor",oem:"00000000000",desc:"Drosselklappe"},
-
-{name:"Injektor",category:"Kraftstoffsystem",oem:"00000000000",desc:"Common-Rail Injektor"},
-{name:"Hochdruckpumpe",category:"Kraftstoffsystem",oem:"00000000000",desc:"Hochdruckpumpe"},
-{name:"Kraftstofffilter",category:"Kraftstoffsystem",oem:"00000000000",desc:"Dieselfilter"},
-{name:"Tank",category:"Kraftstoffsystem",oem:"00000000000",desc:"Kraftstofftank"},
-{name:"Förderpumpe",category:"Kraftstoffsystem",oem:"00000000000",desc:"Kraftstoffpumpe"},
-
-{name:"Automatikgetriebe",category:"Getriebe",oem:"00000000000",desc:"ZF Automatik"},
-{name:"Wandler",category:"Getriebe",oem:"00000000000",desc:"Drehmomentwandler"},
-{name:"Mechatronik",category:"Getriebe",oem:"00000000000",desc:"Getriebesteuerung"},
-{name:"Getriebeölkühler",category:"Getriebe",oem:"00000000000",desc:"Ölkühler"},
-{name:"Getriebelager",category:"Getriebe",oem:"00000000000",desc:"Getriebelager"},
-
-{name:"Verteilergetriebe",category:"Antrieb",oem:"00000000000",desc:"xDrive VTG"},
-{name:"Kardanwelle",category:"Antrieb",oem:"00000000000",desc:"Kardanwelle"},
-{name:"Differential",category:"Antrieb",oem:"00000000000",desc:"Hinterachsdifferential"},
-{name:"Antriebswelle vorne",category:"Antrieb",oem:"00000000000",desc:"Antriebswelle vorne"},
-{name:"Antriebswelle hinten",category:"Antrieb",oem:"00000000000",desc:"Antriebswelle hinten"},
-
-{name:"Wasserpumpe",category:"Kühlsystem",oem:"00000000000",desc:"Kühlmittelpumpe"},
-{name:"Thermostat",category:"Kühlsystem",oem:"00000000000",desc:"Motorthermostat"},
-{name:"Kühler",category:"Kühlsystem",oem:"00000000000",desc:"Motorkühler"},
-{name:"Ausgleichsbehälter",category:"Kühlsystem",oem:"00000000000",desc:"Kühlmittelbehälter"},
-
-{name:"Bremsscheibe VA",category:"Bremsen",oem:"00000000000",desc:"Bremsscheibe vorne"},
-{name:"Bremsscheibe HA",category:"Bremsen",oem:"00000000000",desc:"Bremsscheibe hinten"},
-{name:"Bremsbeläge",category:"Bremsen",oem:"00000000000",desc:"Bremsbeläge"},
-{name:"Bremssattel",category:"Bremsen",oem:"00000000000",desc:"Bremssattel"},
-
-{name:"Querlenker",category:"Fahrwerk",oem:"00000000000",desc:"Querlenker"},
-{name:"Stoßdämpfer vorne",category:"Fahrwerk",oem:"00000000000",desc:"Stoßdämpfer vorne"},
-{name:"Stoßdämpfer hinten",category:"Fahrwerk",oem:"00000000000",desc:"Stoßdämpfer hinten"},
-{name:"Feder vorne",category:"Fahrwerk",oem:"00000000000",desc:"Feder vorne"},
-{name:"Feder hinten",category:"Fahrwerk",oem:"00000000000",desc:"Feder hinten"},
-
-{name:"Lenkgetriebe",category:"Lenkung",oem:"00000000000",desc:"Servolenkung"},
-{name:"Spurstange",category:"Lenkung",oem:"00000000000",desc:"Spurstange"},
-
-{name:"Batterie",category:"Elektrik",oem:"00000000000",desc:"Starterbatterie"},
-{name:"Generator",category:"Elektrik",oem:"00000000000",desc:"Lichtmaschine"},
-{name:"Anlasser",category:"Elektrik",oem:"00000000000",desc:"Startermotor"},
-{name:"Kabelbaum",category:"Elektrik",oem:"00000000000",desc:"Kabelbaum"},
-
-{name:"DDE",category:"Steuergeräte",oem:"00000000000",desc:"Motorsteuergerät"},
-{name:"CAS",category:"Steuergeräte",oem:"00000000000",desc:"Car Access System"},
-{name:"FRM",category:"Steuergeräte",oem:"00000000000",desc:"Fußraummodul"},
-{name:"JBBF",category:"Steuergeräte",oem:"00000000000",desc:"Junction Box"},
-
-{name:"Scheinwerfer",category:"Beleuchtung",oem:"00000000000",desc:"Scheinwerfer"},
-{name:"Rücklicht",category:"Beleuchtung",oem:"00000000000",desc:"Rücklicht"},
-{name:"Nebelscheinwerfer",category:"Beleuchtung",oem:"00000000000",desc:"Nebelscheinwerfer"},
-
-{name:"Motorhaube",category:"Karosserie außen",oem:"00000000000",desc:"Motorhaube"},
-{name:"Kotflügel",category:"Karosserie außen",oem:"00000000000",desc:"Kotflügel"},
-{name:"Stoßstange vorne",category:"Karosserie außen",oem:"00000000000",desc:"Stoßstange vorne"},
-{name:"Stoßstange hinten",category:"Karosserie außen",oem:"00000000000",desc:"Stoßstange hinten"},
-{name:"Heckklappe",category:"Karosserie außen",oem:"00000000000",desc:"Heckklappe"},
-
-{name:"Sitz Fahrer",category:"Innenraum",oem:"00000000000",desc:"Fahrersitz"},
-{name:"Sitz Beifahrer",category:"Innenraum",oem:"00000000000",desc:"Beifahrersitz"},
-{name:"Armaturenbrett",category:"Innenraum",oem:"00000000000",desc:"Armaturenbrett"},
-{name:"Lenkrad",category:"Innenraum",oem:"00000000000",desc:"Lenkrad"},
-
-{name:"Klimakompressor",category:"Klima",oem:"00000000000",desc:"Klimakompressor"},
-{name:"Gebläsemotor",category:"Klima",oem:"00000000000",desc:"Gebläsemotor"},
-
-{name:"Fensterheber",category:"Komfort",oem:"00000000000",desc:"Fensterheber"},
-{name:"Zentralverriegelung",category:"Komfort",oem:"00000000000",desc:"Zentralverriegelung"},
-
-{name:"Airbag Fahrer",category:"Sicherheit",oem:"00000000000",desc:"Fahrerairbag"},
-{name:"ABS-Modul",category:"Sicherheit",oem:"00000000000",desc:"ABS Steuergerät"},
-
-{name:"Luftmassenmesser",category:"Sensorik",oem:"00000000000",desc:"LMM"},
-{name:"NOx-Sensor",category:"Sensorik",oem:"00000000000",desc:"NOx Sensor"},
-
-{name:"Kühlerschlauch",category:"Leitungen / Schläuche",oem:"00000000000",desc:"Kühlerschlauch"},
-{name:"Kraftstoffleitung",category:"Leitungen / Schläuche",oem:"00000000000",desc:"Kraftstoffleitung"}
-
+let defaultParts = [
+  {name:"Zylinderkopf", category:"Motor", oem:"", desc:"M57 Diesel Zylinderkopf"},
+  {name:"Turbolader", category:"Motor", oem:"", desc:"Abgasturbolader"},
+  {name:"Injektor", category:"Motor", oem:"", desc:"Common-Rail Injektor"},
+  {name:"Hochdruckpumpe", category:"Motor", oem:"", desc:"Kraftstoff Hochdruckpumpe"},
+  {name:"Wasserpumpe", category:"Kühlsystem", oem:"", desc:"Kühlmittelpumpe"},
+  {name:"Thermostat", category:"Kühlsystem", oem:"", desc:"Motorthermostat"},
+  {name:"Getriebe", category:"Getriebe", oem:"", desc:"Automatikgetriebe"},
+  {name:"Kupplung", category:"Getriebe", oem:"", desc:"Kupplungseinheit"},
+  {name:"Kardanwelle", category:"Antrieb", oem:"", desc:"xDrive Kardanwelle"},
+  {name:"Differenzial", category:"Antrieb", oem:"", desc:"Hinterachsdifferenzial"},
+  {name:"Bremsscheibe VA", category:"Bremsen", oem:"", desc:"Belüftete Bremsscheibe vorne"},
+  {name:"Bremssattel", category:"Bremsen", oem:"", desc:"Vorderer Bremssattel"},
+  {name:"ABS Steuergerät", category:"Elektronik", oem:"", desc:"ABS/DSC Modul"},
+  {name:"Motorsteuergerät", category:"Elektronik", oem:"", desc:"DDE Steuergerät"},
+  {name:"Kombiinstrument", category:"Elektronik", oem:"", desc:"Tacho"},
+  {name:"Scheinwerfer", category:"Beleuchtung", oem:"", desc:"Frontscheinwerfer"},
+  {name:"Rücklicht", category:"Beleuchtung", oem:"", desc:"Rückleuchte"},
+  {name:"Batterie", category:"Elektrik", oem:"", desc:"Starterbatterie"},
+  {name:"Kotflügel", category:"Karosserie außen", oem:"", desc:"Vorderer Kotflügel"},
+  {name:"Motorhaube", category:"Karosserie außen", oem:"", desc:"Haube"},
+  {name:"Tür vorne links", category:"Karosserie außen", oem:"", desc:"Fahrertür"},
+  {name:"Heckklappe", category:"Karosserie außen", oem:"", desc:"Kofferraumklappe"},
+  {name:"Stoßstange vorne", category:"Karosserie außen", oem:"", desc:"Frontstoßstange"},
+  {name:"Sitz", category:"Innenraum", oem:"", desc:"Vordersitz"},
+  {name:"Lenkrad", category:"Innenraum", oem:"", desc:"Multifunktionslenkrad"},
+  {name:"Klimabedienteil", category:"Innenraum", oem:"", desc:"Klimasteuerung"}
 ];
 
-let parts = JSON.parse(localStorage.getItem("parts") || "[]");
-if (!parts.length) parts = defaultParts;
+let parts = [];
 
-defaultParts.forEach(dp=>{
-  if(!parts.find(p=>p.name===dp.name)) parts.push(dp);
-});
+function loadParts() {
+  let key = "parts_" + vin;
+  let saved = localStorage.getItem(key);
+  parts = saved ? JSON.parse(saved) : JSON.parse(JSON.stringify(defaultParts));
+  updateCategories();
+  renderParts();
+}
 
-localStorage.setItem("parts", JSON.stringify(parts));
+function saveParts() {
+  if (!vin) return;
+  localStorage.setItem("parts_" + vin, JSON.stringify(parts));
+}
 
-let favorites = JSON.parse(localStorage.getItem("favorites")||"[]");
+function saveVIN() {
+  vin = document.getElementById("vinInput").value.trim();
+  if (!vin) return alert("Bitte VIN eingeben");
+  localStorage.setItem("vin", vin);
+  loadParts();
+}
 
-let vin = localStorage.getItem("vin") || "WBAPY51000CX14466";
-document.getElementById("vinInput").value = vin;
-document.getElementById("vinInput").oninput = ()=>{
-  localStorage.setItem("vin", document.getElementById("vinInput").value);
-};
-
-function render(){
-  let search = searchInput.value.toLowerCase();
-  let cat = categoryFilter.value;
-  list.innerHTML="";
-
-  parts.filter(p=>
-    (!cat || p.category===cat) &&
-    (p.name.toLowerCase().includes(search) ||
-     (p.oem||"").includes(search) ||
-     (p.desc||"").toLowerCase().includes(search))
-  ).forEach((p,i)=>{
-    let fav = favorites.includes(p.oem||p.name);
-    let div = document.createElement("div");
-    div.className="part";
-    div.innerHTML = `
-      <b>${p.name}</b>
-      <small>${p.category}</small>
-      <span class="star" onclick="toggleFav('${p.oem||p.name}', event)">${fav?"★":"☆"}</span>
-      <div class="details" id="d${i}">
-        <b>OEM:</b> ${p.oem}<br>
-        <b>Beschreibung:</b> ${p.desc}
-      </div>
-    `;
-    div.onclick = ()=> {
-      let d=document.getElementById("d"+i);
-      d.style.display = d.style.display==="block"?"none":"block";
-    };
-    list.appendChild(div);
+function updateCategories() {
+  let select = document.getElementById("categoryFilter");
+  let cats = [...new Set(parts.map(p => p.category))];
+  select.innerHTML = '<option value="Alle">Alle Kategorien</option>';
+  cats.forEach(c => {
+    let opt = document.createElement("option");
+    opt.value = c;
+    opt.textContent = c;
+    select.appendChild(opt);
   });
 }
 
-function toggleFav(id,e){
-  e.stopPropagation();
-  if(favorites.includes(id)) favorites=favorites.filter(f=>f!==id);
-  else favorites.push(id);
-  localStorage.setItem("favorites",JSON.stringify(favorites));
-  render();
-}
+function renderParts() {
+  let list = document.getElementById("partsList");
+  list.innerHTML = "";
 
-function addPart(){
-  let n=newName.value.trim();
-  let c=newCategory.value.trim();
-  let o=newOem.value.trim()||"00000000000";
-  let d=newDesc.value.trim()||"– nicht hinterlegt –";
-  if(!n||!c) return alert("Name und Kategorie angeben");
-  parts.push({name:n,category:c,oem:o,desc:d});
-  localStorage.setItem("parts",JSON.stringify(parts));
-  newName.value="";newCategory.value="";newOem.value="";newDesc.value="";
-  render();
-}
+  let q = document.getElementById("searchInput").value.toLowerCase();
+  let cat = document.getElementById("categoryFilter").value;
 
-function importOEM(){
-  let data = oemData.value.trim();
-  if(!data) return alert("Keine OEM-Daten eingefügt");
+  parts
+    .filter(p => 
+      (p.name.toLowerCase().includes(q) || p.category.toLowerCase().includes(q)) &&
+      (cat === "Alle" || p.category === cat)
+    )
+    .forEach((p, i) => {
+      let div = document.createElement("div");
+      div.className = "part";
+      div.innerHTML = `
+        <div onclick="toggleInfo(${i})">
+          <h3>${p.name}</h3>
+          <small>${p.category}</small>
+          <small>Status: ${p.status || "undefined"}</small>
+        </div>
+        <div>
+          <span class="star" onclick="toggleFav(${i}, event)">★</span>
+        </div>
+      `;
 
-  let imported;
-  try {
-    imported = JSON.parse(data);
-  } catch {
-    imported = data.split("\n").map(l=>{
-      let [name,oem] = l.split(";");
-      return {name:name?.trim(), oem:oem?.trim()};
+      let info = document.createElement("div");
+      info.className = "info-box hidden";
+      info.id = "info_" + i;
+      info.innerHTML = `
+        <strong>OEM:</strong> ${p.oem || "-"}<br>
+        <strong>Beschreibung:</strong> ${p.desc || "-"}
+      `;
+
+      list.appendChild(div);
+      list.appendChild(info);
     });
-  }
-
-  let updated=0;
-  imported.forEach(io=>{
-    let part = parts.find(p=>p.name.toLowerCase()===io.name.toLowerCase());
-    if(part && io.oem){
-      part.oem = io.oem;
-      updated++;
-    }
-  });
-
-  localStorage.setItem("parts",JSON.stringify(parts));
-  render();
-  alert(updated+" OEM-Nummern aktualisiert");
 }
 
-searchInput.oninput=render;
-categoryFilter.onchange=render;
+function toggleInfo(i) {
+  let box = document.getElementById("info_" + i);
+  box.classList.toggle("hidden");
+}
 
-render();
+function toggleFav(i, e) {
+  e.stopPropagation();
+  parts[i].fav = !parts[i].fav;
+  saveParts();
+}
+
+function addPart() {
+  let n = newName.value.trim();
+  let c = newCategory.value.trim();
+  let o = newOEM.value.trim();
+  let d = newDesc.value.trim();
+  if (!n || !c) return alert("Name & Kategorie nötig");
+
+  parts.push({name:n, category:c, oem:o, desc:d});
+  saveParts();
+  updateCategories();
+  renderParts();
+
+  newName.value = "";
+  newCategory.value = "";
+  newOEM.value = "";
+  newDesc.value = "";
+}
+
+function importOEMs() {
+  let lines = document.getElementById("oemImport").value.split("\n");
+  lines.forEach(l => {
+    let [name, oem] = l.split(";");
+    if (!name || !oem) return;
+    let p = parts.find(x => x.name.toLowerCase() === name.toLowerCase());
+    if (p) p.oem = oem.trim();
+  });
+  saveParts();
+  renderParts();
+}
+
+if (vin) loadParts();
 </script>
 
 </body>
