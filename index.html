@@ -20,11 +20,7 @@ input, select, button {
   font-size:16px;
 }
 
-button {
-  background:#3b82f6;
-  color:#fff;
-  border:none;
-}
+button { background:#3b82f6; color:#fff; border:none; }
 
 .part {
   background:#3b82f6;
@@ -62,7 +58,7 @@ button {
 
 <header>
   <h1>BMW E61 525xd – Teileliste</h1>
-  <p>Suche, filtere oder füge neue Teile hinzu</p>
+  <p>Alle Baugruppen – Platzhalter-OEMs</p>
 </header>
 
 <div class="container">
@@ -79,14 +75,21 @@ button {
     <option>Abgasanlage</option>
     <option>Kühlsystem</option>
     <option>Kraftstoffsystem</option>
-    <option>Elektrik</option>
-    <option>Steuergeräte</option>
+    <option>Antrieb</option>
     <option>Fahrwerk</option>
     <option>Bremsen</option>
-    <option>Karosserie außen</option>
-    <option>Innenraum</option>
+    <option>Lenkung</option>
+    <option>Elektrik</option>
+    <option>Steuergeräte</option>
     <option>Beleuchtung</option>
-    <option>Antrieb</option>
+    <option>Karosserie außen</option>
+    <option>Karosserie innen</option>
+    <option>Innenraum</option>
+    <option>Klima</option>
+    <option>Komfort</option>
+    <option>Sicherheit</option>
+    <option>Sensorik</option>
+    <option>Leitungen / Schläuche</option>
   </select>
 
   <h3>Teil hinzufügen</h3>
@@ -102,137 +105,208 @@ button {
 
 <script>
 const defaultParts = [
-  {name:"Zylinderkopf", category:"Motor", oem:"11127806100", desc:"M57 Diesel Zylinderkopf"},
-  {name:"Turbolader", category:"Motor", oem:"11657802588", desc:"Abgasturbolader"},
-  {name:"Wasserpumpe", category:"Kühlsystem", oem:"11517788826", desc:"Kühlmittelpumpe"},
-  {name:"Bremscheibe VA", category:"Bremsen", oem:"34116864058", desc:"Belüftete Bremsscheibe vorne"},
-  {name:"Injektor", category:"Kraftstoffsystem", oem:"13537805430", desc:"Common-Rail Injektor"},
-  {name:"Kardanwelle", category:"Antrieb", oem:"26107570956", desc:"xDrive Kardanwelle"},
-  {name:"Motorhaube", category:"Karosserie außen", oem:"41617111385", desc:"Motorhaube Touring"},
-  {name:"Kotflügel", category:"Karosserie außen", oem:"41357133241", desc:"Kotflügel vorne links"},
-  {name:"Tür vorne links", category:"Karosserie außen", oem:"41517202015", desc:"Vordertür links"},
-  {name:"Heckklappe", category:"Karosserie außen", oem:"41627111391", desc:"Heckklappe Touring"},
-  {name:"Scheinwerfer", category:"Beleuchtung", oem:"63117181293", desc:"Xenon Scheinwerfer links"},
-  {name:"Rücklicht", category:"Beleuchtung", oem:"63217181297", desc:"Rückleuchte rechts"},
-  {name:"Sitz", category:"Innenraum", oem:"52107188367", desc:"Komfortsitz Fahrer"},
-  {name:"Getriebe", category:"Getriebe", oem:"24007571213", desc:"6HP Automatikgetriebe"},
-  {name:"DME Steuergerät", category:"Steuergeräte", oem:"12147588817", desc:"Motorsteuergerät"},
-  {name:"Stoßstange vorne", category:"Karosserie außen", oem:"51117184735", desc:"Frontstoßstange"},
-  {name:"Stoßstange hinten", category:"Karosserie außen", oem:"51127184736", desc:"Heckstoßstange"},
-  {name:"Batterie", category:"Elektrik", oem:"61217586967", desc:"Starterbatterie AGM"},
-  {name:"Lichtmaschine", category:"Elektrik", oem:"12317802588", desc:"Generator"},
-  {name:"Anlasser", category:"Elektrik", oem:"12417802589", desc:"Startermotor"},
-  {name:"AGR Ventil", category:"Abgasanlage", oem:"11717804384", desc:"Abgasrückführventil"},
-  {name:"DPF", category:"Abgasanlage", oem:"18307798164", desc:"Dieselpartikelfilter"},
-  {name:"Querlenker", category:"Fahrwerk", oem:"31126769797", desc:"Querlenker vorne"},
-  {name:"Stoßdämpfer", category:"Fahrwerk", oem:"33526771726", desc:"Stoßdämpfer hinten"},
-  {name:"Differential", category:"Antrieb", oem:"33107573287", desc:"Hinterachsdifferential"},
-  {name:"Lenkgetriebe", category:"Fahrwerk", oem:"32106786117", desc:"Servolenkung"},
-  {name:"Klimakompressor", category:"Kühlsystem", oem:"64529165808", desc:"Klimakompressor"}
+
+/* ===== MOTOR ===== */
+{name:"Motorblock",category:"Motor",oem:"00000000000",desc:"Motorblock M57"},
+{name:"Zylinderkopf",category:"Motor",oem:"00000000000",desc:"Zylinderkopf"},
+{name:"Kolben",category:"Motor",oem:"00000000000",desc:"Kolben"},
+{name:"Pleuel",category:"Motor",oem:"00000000000",desc:"Pleuel"},
+{name:"Kurbelwelle",category:"Motor",oem:"00000000000",desc:"Kurbelwelle"},
+{name:"Nockenwelle",category:"Motor",oem:"00000000000",desc:"Nockenwelle"},
+{name:"Ventildeckel",category:"Motor",oem:"00000000000",desc:"Ventildeckel"},
+{name:"Ölpumpe",category:"Motor",oem:"00000000000",desc:"Ölpumpe"},
+{name:"Ölfiltergehäuse",category:"Motor",oem:"00000000000",desc:"Ölfiltergehäuse"},
+{name:"Turbolader",category:"Motor",oem:"00000000000",desc:"Abgasturbolader"},
+{name:"AGR-Ventil",category:"Motor",oem:"00000000000",desc:"Abgasrückführventil"},
+{name:"Ladeluftkühler",category:"Motor",oem:"00000000000",desc:"Ladeluftkühler"},
+{name:"Ansaugbrücke",category:"Motor",oem:"00000000000",desc:"Ansaugbrücke"},
+{name:"Drosselklappe",category:"Motor",oem:"00000000000",desc:"Drosselklappe"},
+{name:"Riemenspanner",category:"Motor",oem:"00000000000",desc:"Riemenspanner"},
+{name:"Keilrippenriemen",category:"Motor",oem:"00000000000",desc:"Keilrippenriemen"},
+
+/* ===== KRAFTSTOFF ===== */
+{name:"Injektor",category:"Kraftstoffsystem",oem:"00000000000",desc:"Common-Rail Injektor"},
+{name:"Hochdruckpumpe",category:"Kraftstoffsystem",oem:"00000000000",desc:"Hochdruckpumpe"},
+{name:"Kraftstofffilter",category:"Kraftstoffsystem",oem:"00000000000",desc:"Dieselfilter"},
+{name:"Tank",category:"Kraftstoffsystem",oem:"00000000000",desc:"Kraftstofftank"},
+{name:"Förderpumpe",category:"Kraftstoffsystem",oem:"00000000000",desc:"Kraftstoffpumpe"},
+
+/* ===== GETRIEBE ===== */
+{name:"Automatikgetriebe",category:"Getriebe",oem:"00000000000",desc:"ZF Automatik"},
+{name:"Wandler",category:"Getriebe",oem:"00000000000",desc:"Drehmomentwandler"},
+{name:"Mechatronik",category:"Getriebe",oem:"00000000000",desc:"Getriebesteuerung"},
+{name:"Getriebeölkühler",category:"Getriebe",oem:"00000000000",desc:"Ölkühler"},
+{name:"Getriebelager",category:"Getriebe",oem:"00000000000",desc:"Getriebelager"},
+
+/* ===== ANTRIEB ===== */
+{name:"Kardanwelle",category:"Antrieb",oem:"00000000000",desc:"Kardanwelle"},
+{name:"Differential",category:"Antrieb",oem:"00000000000",desc:"Hinterachsdifferential"},
+{name:"Antriebswelle vorne",category:"Antrieb",oem:"00000000000",desc:"Antriebswelle vorne"},
+{name:"Antriebswelle hinten",category:"Antrieb",oem:"00000000000",desc:"Antriebswelle hinten"},
+{name:"Verteilergetriebe",category:"Antrieb",oem:"00000000000",desc:"xDrive Verteilergetriebe"},
+
+/* ===== FAHRWERK ===== */
+{name:"Querlenker",category:"Fahrwerk",oem:"00000000000",desc:"Querlenker"},
+{name:"Stoßdämpfer vorne",category:"Fahrwerk",oem:"00000000000",desc:"Stoßdämpfer vorne"},
+{name:"Stoßdämpfer hinten",category:"Fahrwerk",oem:"00000000000",desc:"Stoßdämpfer hinten"},
+{name:"Feder vorne",category:"Fahrwerk",oem:"00000000000",desc:"Feder vorne"},
+{name:"Feder hinten",category:"Fahrwerk",oem:"00000000000",desc:"Feder hinten"},
+{name:"Stabilisator",category:"Fahrwerk",oem:"00000000000",desc:"Stabilisator"},
+
+/* ===== BREMSEN ===== */
+{name:"Bremsscheibe VA",category:"Bremsen",oem:"00000000000",desc:"Bremsscheibe vorne"},
+{name:"Bremsscheibe HA",category:"Bremsen",oem:"00000000000",desc:"Bremsscheibe hinten"},
+{name:"Bremsbeläge",category:"Bremsen",oem:"00000000000",desc:"Bremsbeläge"},
+{name:"Bremssattel",category:"Bremsen",oem:"00000000000",desc:"Bremssattel"},
+{name:"Bremsleitung",category:"Bremsen",oem:"00000000000",desc:"Bremsleitung"},
+
+/* ===== LENKUNG ===== */
+{name:"Lenkgetriebe",category:"Lenkung",oem:"00000000000",desc:"Servolenkung"},
+{name:"Spurstange",category:"Lenkung",oem:"00000000000",desc:"Spurstange"},
+{name:"Lenksäule",category:"Lenkung",oem:"00000000000",desc:"Lenksäule"},
+
+/* ===== ELEKTRIK ===== */
+{name:"Batterie",category:"Elektrik",oem:"00000000000",desc:"Starterbatterie"},
+{name:"Generator",category:"Elektrik",oem:"00000000000",desc:"Lichtmaschine"},
+{name:"Anlasser",category:"Elektrik",oem:"00000000000",desc:"Startermotor"},
+{name:"Sicherungskasten",category:"Elektrik",oem:"00000000000",desc:"Sicherungskasten"},
+{name:"Kabelbaum",category:"Elektrik",oem:"00000000000",desc:"Kabelbaum"},
+
+/* ===== STEUERGERÄTE ===== */
+{name:"DDE",category:"Steuergeräte",oem:"00000000000",desc:"Motorsteuergerät"},
+{name:"CAS",category:"Steuergeräte",oem:"00000000000",desc:"Car Access System"},
+{name:"FRM",category:"Steuergeräte",oem:"00000000000",desc:"Fußraummodul"},
+{name:"JBBF",category:"Steuergeräte",oem:"00000000000",desc:"Junction Box"},
+
+/* ===== BELEUCHTUNG ===== */
+{name:"Scheinwerfer",category:"Beleuchtung",oem:"00000000000",desc:"Scheinwerfer"},
+{name:"Rücklicht",category:"Beleuchtung",oem:"00000000000",desc:"Rücklicht"},
+{name:"Nebelscheinwerfer",category:"Beleuchtung",oem:"00000000000",desc:"Nebelscheinwerfer"},
+{name:"Blinker",category:"Beleuchtung",oem:"00000000000",desc:"Blinker"},
+
+/* ===== KAROSSERIE AUSSEN ===== */
+{name:"Motorhaube",category:"Karosserie außen",oem:"00000000000",desc:"Motorhaube"},
+{name:"Kotflügel",category:"Karosserie außen",oem:"00000000000",desc:"Kotflügel"},
+{name:"Stoßstange vorne",category:"Karosserie außen",oem:"00000000000",desc:"Stoßstange vorne"},
+{name:"Stoßstange hinten",category:"Karosserie außen",oem:"00000000000",desc:"Stoßstange hinten"},
+{name:"Tür vorne links",category:"Karosserie außen",oem:"00000000000",desc:"Vordertür links"},
+{name:"Tür vorne rechts",category:"Karosserie außen",oem:"00000000000",desc:"Vordertür rechts"},
+{name:"Heckklappe",category:"Karosserie außen",oem:"00000000000",desc:"Heckklappe"},
+
+/* ===== KAROSSERIE INNEN ===== */
+{name:"Türverkleidung",category:"Karosserie innen",oem:"00000000000",desc:"Türverkleidung"},
+{name:"Dachhimmel",category:"Karosserie innen",oem:"00000000000",desc:"Dachhimmel"},
+{name:"Säulenverkleidung",category:"Karosserie innen",oem:"00000000000",desc:"Säulenverkleidung"},
+
+/* ===== INNENRAUM ===== */
+{name:"Sitz Fahrer",category:"Innenraum",oem:"00000000000",desc:"Fahrersitz"},
+{name:"Sitz Beifahrer",category:"Innenraum",oem:"00000000000",desc:"Beifahrersitz"},
+{name:"Rücksitzbank",category:"Innenraum",oem:"00000000000",desc:"Rücksitzbank"},
+{name:"Armaturenbrett",category:"Innenraum",oem:"00000000000",desc:"Armaturenbrett"},
+{name:"Lenkrad",category:"Innenraum",oem:"00000000000",desc:"Lenkrad"},
+{name:"Mittelkonsole",category:"Innenraum",oem:"00000000000",desc:"Mittelkonsole"},
+
+/* ===== KLIMA ===== */
+{name:"Klimakompressor",category:"Klima",oem:"00000000000",desc:"Klimakompressor"},
+{name:"Kondensator",category:"Klima",oem:"00000000000",desc:"Kondensator"},
+{name:"Verdampfer",category:"Klima",oem:"00000000000",desc:"Verdampfer"},
+{name:"Gebläsemotor",category:"Klima",oem:"00000000000",desc:"Gebläsemotor"},
+
+/* ===== KOMFORT ===== */
+{name:"Fensterheber",category:"Komfort",oem:"00000000000",desc:"Fensterheber"},
+{name:"Zentralverriegelung",category:"Komfort",oem:"00000000000",desc:"Zentralverriegelung"},
+{name:"Sitzheizung",category:"Komfort",oem:"00000000000",desc:"Sitzheizung"},
+{name:"Schiebedachmotor",category:"Komfort",oem:"00000000000",desc:"Schiebedachmotor"},
+
+/* ===== SICHERHEIT ===== */
+{name:"Airbag Fahrer",category:"Sicherheit",oem:"00000000000",desc:"Fahrerairbag"},
+{name:"Airbag Beifahrer",category:"Sicherheit",oem:"00000000000",desc:"Beifahrerairbag"},
+{name:"Gurtstraffer",category:"Sicherheit",oem:"00000000000",desc:"Gurtstraffer"},
+{name:"ABS-Modul",category:"Sicherheit",oem:"00000000000",desc:"ABS Steuergerät"},
+
+/* ===== SENSORIK ===== */
+{name:"Luftmassenmesser",category:"Sensorik",oem:"00000000000",desc:"LMM"},
+{name:"NOx-Sensor",category:"Sensorik",oem:"00000000000",desc:"NOx Sensor"},
+{name:"Temperatursensor",category:"Sensorik",oem:"00000000000",desc:"Temperatursensor"},
+{name:"Drucksensor",category:"Sensorik",oem:"00000000000",desc:"Drucksensor"},
+
+/* ===== LEITUNGEN ===== */
+{name:"Kühlerschlauch",category:"Leitungen / Schläuche",oem:"00000000000",desc:"Kühlerschlauch"},
+{name:"Unterdruckschlauch",category:"Leitungen / Schläuche",oem:"00000000000",desc:"Unterdruckschlauch"},
+{name:"Kraftstoffleitung",category:"Leitungen / Schläuche",oem:"00000000000",desc:"Kraftstoffleitung"},
+{name:"Bremsleitung",category:"Leitungen / Schläuche",oem:"00000000000",desc:"Bremsleitung"}
 ];
 
 let parts = JSON.parse(localStorage.getItem("parts") || "[]");
-
-// 🔧 Ergänze fehlende Default-Teile
-defaultParts.forEach(dp => {
-  if (!parts.find(p => p.name === dp.name)) {
-    parts.push(dp);
-  }
+if (!parts.length) parts = defaultParts;
+defaultParts.forEach(dp=>{
+  if(!parts.find(p=>p.name===dp.name)) parts.push(dp);
 });
-
-// 🔧 Repariere alte Teile
-parts = parts.map(p => ({
-  name: p.name,
-  category: p.category || "Unbekannt",
-  oem: p.oem || "",
-  desc: p.desc || "– nicht hinterlegt –"
-}));
 
 localStorage.setItem("parts", JSON.stringify(parts));
 
-// ⭐ Favoriten
-let favorites = JSON.parse(localStorage.getItem("favorites") || "[]");
+let favorites = JSON.parse(localStorage.getItem("favorites")||"[]");
 
-// 🚗 VIN
 let vin = localStorage.getItem("vin") || "";
 document.getElementById("vinInput").value = vin;
 document.getElementById("vinInput").oninput = () => {
   localStorage.setItem("vin", document.getElementById("vinInput").value);
 };
 
-function render() {
+function render(){
   let search = document.getElementById("search").value.toLowerCase();
   let cat = document.getElementById("categoryFilter").value;
   let list = document.getElementById("list");
-  list.innerHTML = "";
+  list.innerHTML="";
 
-  parts.filter(p => 
-    (!cat || p.category === cat) &&
+  parts.filter(p=>
+    (!cat || p.category===cat) &&
     (p.name.toLowerCase().includes(search) ||
-     (p.oem || "").includes(search) ||
-     (p.desc || "").toLowerCase().includes(search))
-  ).forEach((p, i) => {
-
-    let fav = favorites.includes(p.oem || p.name);
-
+     (p.oem||"").includes(search) ||
+     (p.desc||"").toLowerCase().includes(search))
+  ).forEach((p,i)=>{
+    let fav = favorites.includes(p.oem||p.name);
     let div = document.createElement("div");
-    div.className = "part";
+    div.className="part";
     div.innerHTML = `
       <b>${p.name}</b>
       <small>${p.category}</small>
-      <span class="star" onclick="toggleFav('${p.oem || p.name}', event)">${fav ? "★" : "☆"}</span>
+      <span class="star" onclick="toggleFav('${p.oem||p.name}', event)">${fav?"★":"☆"}</span>
       <div class="details" id="d${i}">
-        <b>OEM:</b> ${p.oem || "– nicht hinterlegt –"}<br>
-        <b>Beschreibung:</b> ${p.desc || "– nicht hinterlegt –"}
+        <b>OEM:</b> ${p.oem}<br>
+        <b>Beschreibung:</b> ${p.desc}
       </div>
     `;
-
-    div.onclick = () => {
-      let d = document.getElementById("d" + i);
-      d.style.display = d.style.display === "block" ? "none" : "block";
+    div.onclick = ()=> {
+      let d=document.getElementById("d"+i);
+      d.style.display = d.style.display==="block"?"none":"block";
     };
-
     list.appendChild(div);
   });
 }
 
-function toggleFav(id, event) {
-  event.stopPropagation();
-  if (favorites.includes(id))
-    favorites = favorites.filter(f => f !== id);
+function toggleFav(id,e){
+  e.stopPropagation();
+  if(favorites.includes(id)) favorites=favorites.filter(f=>f!==id);
   else favorites.push(id);
-
-  localStorage.setItem("favorites", JSON.stringify(favorites));
+  localStorage.setItem("favorites",JSON.stringify(favorites));
   render();
 }
 
-function addPart() {
-  let n = document.getElementById("newName").value.trim();
-  let c = document.getElementById("newCategory").value.trim();
-  let o = document.getElementById("newOem").value.trim();
-  let d = document.getElementById("newDesc").value.trim();
-
-  if (!n || !c) return alert("Mindestens Name und Kategorie angeben");
-
-  parts.push({
-    name: n,
-    category: c,
-    oem: o || "",
-    desc: d || "– nicht hinterlegt –"
-  });
-
-  localStorage.setItem("parts", JSON.stringify(parts));
-
-  document.getElementById("newName").value = "";
-  document.getElementById("newCategory").value = "";
-  document.getElementById("newOem").value = "";
-  document.getElementById("newDesc").value = "";
-
+function addPart(){
+  let n=newName.value.trim();
+  let c=newCategory.value.trim();
+  let o=newOem.value.trim()||"00000000000";
+  let d=newDesc.value.trim()||"– nicht hinterlegt –";
+  if(!n||!c) return alert("Name und Kategorie angeben");
+  parts.push({name:n,category:c,oem:o,desc:d});
+  localStorage.setItem("parts",JSON.stringify(parts));
+  newName.value="";newCategory.value="";newOem.value="";newDesc.value="";
   render();
 }
 
-document.getElementById("search").oninput = render;
-document.getElementById("categoryFilter").onchange = render;
+search.oninput=render;
+categoryFilter.onchange=render;
 
 render();
 </script>
