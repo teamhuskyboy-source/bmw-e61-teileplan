@@ -19,13 +19,13 @@
           "name": "Gasdruckfeder einlegeboden",
           "category": "Innenraum",
           "oem": "51477148826",
-          "desc": "Gasdruckfeder Innenraum für bmw e61"
+          "desc": "Gasdruckfeder Innenraum fÃ¼r bmw e61"
         },
         {
           "name": "Motorhaubendempfer",
           "category": "Karosserie vorne",
           "oem": "51237008745",
-          "desc": "Motorhaubengasdruckdempfer f�r bmw e61 (wichtig schauen ob Aluhaube!)"
+          "desc": "Motorhaubengasdruckdempfer für bmw e61 (wichtig schauen ob Aluhaube!)"
         }
       ]
     },
@@ -37,6 +37,12 @@
           "category": "Motor",
           "oem": "243G0002",
           "desc": "Gluekerze bmw e61 530d 218ps"
+        },
+        {
+          "name": "Gasdruckfeder einlegeboden",
+          "category": "Innenraum",
+          "oem": "51477148826",
+          "desc": "Einlegebodengasdruckfeder bmw e61"
         }
       ]
     }
