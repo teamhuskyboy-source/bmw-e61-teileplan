@@ -31,7 +31,6 @@ button:hover { background:#2563eb; }
 .info-box { background:#fff; color:#000; padding:10px; border-radius:8px; margin-top:10px; font-size:14px; }
 
 .sync-btn { background:#10b981; }
-
 .small-btn { background:#6b7280; font-size:14px; padding:8px; }
 
 </style>
@@ -271,6 +270,8 @@ function deletePart(i) {
 }
 
 function renderParts() {
+  const selectedCategory = categoryFilter.value;
+
   partsList.innerHTML = "";
   categoryFilter.innerHTML = `<option value="">Alle Kategorien</option>`;
 
@@ -278,7 +279,6 @@ function renderParts() {
 
   const parts = data.vehicles[currentVIN].parts;
   const search = searchInput.value.toLowerCase();
-  const filterCat = categoryFilter.value;
 
   const cats = [...new Set(parts.map(p => p.category))];
   cats.forEach(c => {
@@ -287,6 +287,9 @@ function renderParts() {
     opt.textContent = c;
     categoryFilter.appendChild(opt);
   });
+
+  categoryFilter.value = selectedCategory;
+  const filterCat = selectedCategory;
 
   parts.forEach((p, i) => {
     if (
