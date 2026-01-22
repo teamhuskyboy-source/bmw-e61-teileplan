@@ -43,6 +43,12 @@
           "category": "Innenraum",
           "oem": "51477148826",
           "desc": "Einlegebodengasdruckfeder bmw e61"
+        },
+        {
+          "name": "Motorhaubendempfer",
+          "category": "Karosserie vorne",
+          "oem": "51237008745",
+          "desc": "Motorhaubengasdruckdempfer bmw e61 (wichtig schauen ob alu Haube!)"
         }
       ]
     }
